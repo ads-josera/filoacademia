@@ -91,7 +91,7 @@ $autoRefresh = in_array($order->status, [OrderStatus::InProcess], true)
     </div>
   </section>
 
-  <div class="checkout__grid u-mt-6">
+  <div class="checkout__grid checkout__grid--after-status">
     <section class="panel" aria-labelledby="resumen-title">
       <h2 class="panel__title" id="resumen-title">Resumen del pedido</h2>
       <?= $v->render('partials/order-summary', ['order' => $order]) ?>

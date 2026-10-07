@@ -87,14 +87,7 @@ $whatsappText = $v->whatsappOrderMessage($order, 'Hola, tengo un problema para p
         </section>
       <?php endif; ?>
       <p class="secure-note">Tus datos de pago los procesa Mercado Pago. Nosotros nunca vemos ni guardamos tu tarjeta.</p>
-    </div>
-
-    <aside class="checkout__aside" aria-labelledby="resumen-title">
-      <section class="panel">
-        <h2 class="panel__title" id="resumen-title">Resumen</h2>
-        <?= $v->render('partials/order-summary', ['order' => $order]) ?>
-      </section>
-      <section class="panel">
+      <section class="panel u-mt-6">
         <h2 class="panel__title">Datos de contacto</h2>
         <dl class="detail-list">
           <dt>Nombre</dt><dd><?= $v->e($order->customerName) ?></dd>
@@ -102,6 +95,13 @@ $whatsappText = $v->whatsappOrderMessage($order, 'Hola, tengo un problema para p
           <dt>WhatsApp</dt><dd><?= $v->e($order->customerPhone) ?></dd>
           <?php if ($order->customerAddress !== null): ?><dt>Dirección</dt><dd><?= $v->e($order->customerAddress) ?></dd><?php endif; ?>
         </dl>
+      </section>
+    </div>
+
+    <aside class="checkout__aside" aria-labelledby="resumen-title">
+      <section class="panel">
+        <h2 class="panel__title" id="resumen-title">Resumen</h2>
+        <?= $v->render('partials/order-summary', ['order' => $order]) ?>
       </section>
     </aside>
   </div>

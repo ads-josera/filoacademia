@@ -127,9 +127,27 @@ export default async function run(page) {
 
   // 4. Enlace manipulado: sin token no hay datos
   const folio = new URL(page.url()).searchParams.get('folio');
+  const payToken = new URL(page.url()).searchParams.get('t');
   const resp = await page.goto(`${base}/pagar/resultado?folio=${folio}&t=falso`);
   step(`resultado con token falso: HTTP ${resp.status()}`);
   if (resp.status() !== 404) report.issues.push('el resultado se mostró con un token falso');
+
+  // 5. Resultado (pedido sin pagar): separación entre botones y paneles, y
+  //    paneles alineados arriba. Ya falló una vez: los botones tocaban la caja.
+  for (const width of [1280, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(`${base}/pagar/resultado?folio=${folio}&t=${payToken}`);
+    const layout = await page.evaluate(() => {
+      const actions = document.querySelector('.status-hero__actions').getBoundingClientRect();
+      const panels = [...document.querySelectorAll('.checkout__grid > .panel')].map((p) => p.getBoundingClientRect());
+      return { gap: Math.round(panels[0].top - actions.bottom), tops: panels.map((p) => Math.round(p.top)), lefts: panels.map((p) => Math.round(p.left)) };
+    });
+    step(`resultado @${width}: separación ${layout.gap}px, paneles arriba ${layout.tops.join('/')}`);
+    if (layout.gap < 32) report.issues.push(`resultado @${width}: botones a ${layout.gap}px de los paneles (mínimo 32)`);
+    const sideBySide = layout.lefts[0] !== layout.lefts[1];
+    if (sideBySide && layout.tops[0] !== layout.tops[1]) report.issues.push(`resultado @${width}: paneles lado a lado desalineados (${layout.tops.join(' vs ')})`);
+    report.issues.push(...(await geometry(page, `resultado @${width}`)));
+  }
 
   report.folio = folio;
   return report;

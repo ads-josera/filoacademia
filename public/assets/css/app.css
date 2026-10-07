@@ -159,7 +159,7 @@ a { color: inherit; text-underline-offset: 3px; }
 .logo__sub {
   display: block; margin-top: 2px;
   font-family: var(--font-body); font-weight: 500; font-size: .625rem; letter-spacing: .34em; text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--color-text-muted); white-space: nowrap;
 }
 
 /* Etiqueta de sección con kanji */
@@ -279,6 +279,8 @@ label.option-row:has(input:disabled) { opacity: .45; cursor: not-allowed; }
 /* Panel (tarjeta de contenido en el flujo de pago) */
 .panel { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: var(--space-6); }
 .panel + .panel { margin-top: var(--space-5); }
+/* En la rejilla los paneles van lado a lado: la separación la da el gap. */
+.checkout__grid > .panel + .panel { margin-top: 0; }
 .panel__title { font-family: var(--font-display); font-weight: 600; font-size: var(--text-lg); margin-bottom: var(--space-4); }
 
 /* Indicador de carga */
@@ -478,7 +480,9 @@ dialog::backdrop { background: var(--color-overlay); }
 /* ---------- 5. FLUJO DE PAGO ---------- */
 .checkout { padding: var(--space-8) var(--gutter) var(--space-9); }
 .checkout__head { max-width: var(--content-width); margin: 0 auto var(--space-6); }
-.checkout__grid { max-width: var(--content-width); margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: var(--space-6); align-items: start; }
+.checkout__grid { max-width: var(--content-width); margin-inline: auto; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: var(--space-6); align-items: start; }
+.checkout__grid > .empty-state { grid-column: 1 / -1; }
+.checkout__grid--after-status { margin-top: var(--space-8); }
 .checkout__aside { position: sticky; top: calc(var(--nav-height) + var(--space-5)); }
 .progress { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); margin-bottom: var(--space-5); list-style: none; font-size: var(--text-xs); letter-spacing: .14em; text-transform: uppercase; color: var(--color-text-subtle); }
 .progress li[aria-current="step"] { color: var(--color-text); font-weight: 700; }
@@ -528,10 +532,14 @@ dialog::backdrop { background: var(--color-overlay); }
   .site-footer__grid { grid-template-columns: 1fr 1fr; gap: var(--space-6); }
   .watermark { font-size: 14rem; }
   .checkout__grid { grid-template-columns: 1fr; }
-  .checkout__aside { position: static; order: -1; }
+  .checkout__grid > .empty-state { grid-column: 1 / -1; }
+.checkout__grid--after-status { margin-top: var(--space-8); }
+.checkout__aside { position: static; order: -1; }
   .panel { padding: var(--space-5) var(--space-4); }
 }
 @media (max-width: 520px) {
+  .choices--stack-sm { grid-template-columns: 1fr; }
+  .site-footer__grid > :first-child { grid-column: 1 / -1; }
   .cart-button__label { display: none; }
   .cart-button__icon { display: block; }
   .hero__actions .btn { flex: 1 1 100%; }

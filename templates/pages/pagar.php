@@ -65,7 +65,7 @@ $labels = ['cart' => 'Carrito', 'name' => 'Nombre', 'email' => 'Correo', 'phone'
         <h2 class="panel__title" id="entrega-title">Recepción y entrega</h2>
         <fieldset class="choice-group">
           <legend class="visually-hidden">Recepción y entrega</legend>
-          <div class="choices choices--3">
+          <div class="choices choices--3 choices--stack-sm">
             <?php foreach ($catalogModel->deliveryOptions() as $option): ?>
               <?php if (!$option['available']) { continue; } ?>
               <label class="choice">

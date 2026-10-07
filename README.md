@@ -48,7 +48,8 @@ el estado «No pudimos conectar con Mercado Pago»: es lo esperado.
 
 ```bash
 composer test                     # 53 pruebas: precios, firma del webhook, flujo de cobro, correos
-node <skill browser-automation>/browser.mjs http://localhost:8000/ --script tests/browser/qa.mjs
+node <skill browser-automation>/browser.mjs https://filoacademia.ddev.site/ --script tests/browser/qa.mjs       # recorrido de cliente
+SCREENS_FILE=pantallas.json SHOT_DIR=/tmp/capturas node <skill>/browser.mjs https://filoacademia.ddev.site/ --script tests/browser/screens.mjs   # todas las pantallas × 5 anchos
 ```
 
 ## Documentación
