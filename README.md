@@ -19,7 +19,20 @@ accesibilidad medida.
 | Correo | Una cuenta SMTP (p. ej. `pagos@dominio` en cPanel) |
 | Mercado Pago | Cuenta de vendedor + aplicación en el panel de desarrolladores |
 
-## Arranque local
+## Arranque local con DDEV (recomendado: Apache + PHP 8.4, igual que cPanel)
+
+```bash
+ddev start
+cp -n config/config.example.php config/config.php
+#   en config/config.php: 'url' => 'https://filoacademia.ddev.site'
+ddev composer install
+ddev exec php bin/migrate.php
+ddev launch                       # abre https://filoacademia.ddev.site
+```
+
+Pruebas dentro del contenedor: `ddev exec vendor/bin/phpunit`. Apagar: `ddev stop`.
+
+## Arranque local sin Docker
 
 ```bash
 composer install
