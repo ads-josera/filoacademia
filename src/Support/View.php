@@ -91,6 +91,26 @@ final class View
         );
     }
 
+    /**
+     * URL de WhatsApp del taller con un mensaje opcional. Los enlaces se pintan
+     * con el parcial partials/whatsapp-link (pestaña nueva, texto accesible).
+     */
+    public function whatsappUrl(?string $text = null): string
+    {
+        $url = 'https://wa.me/' . preg_replace('/\D+/', '', (string) ($this->shared['business']['whatsapp'] ?? ''));
+
+        return $text !== null && trim($text) !== '' ? $url . '?text=' . rawurlencode(trim($text)) : $url;
+    }
+
+    /** Mensaje de WhatsApp con el detalle del pedido (templates/whatsapp/order-message.php). */
+    public function whatsappOrderMessage(\FiloAcademia\Order\Order $order, string $intro): string
+    {
+        // Las líneas vacías de la plantilla se compactan: WhatsApp las respeta tal cual.
+        $text = $this->render('whatsapp/order-message', ['order' => $order, 'intro' => $intro]);
+
+        return trim((string) preg_replace("/\n{3,}/", "\n\n", $text));
+    }
+
     public function urls(): Urls
     {
         return $this->urls;

@@ -48,7 +48,7 @@ $courses = [
           <h2 class="course__title"><?= $v->e($course['title']) ?></h2>
           <p><?= $v->e($course['text']) ?></p>
           <p class="course__meta"><?= $v->e($course['meta']) ?></p>
-          <a class="course__link" href="https://wa.me/<?= $v->e($business['whatsapp']) ?>?text=<?= rawurlencode($course['message']) ?>" rel="noopener"><?= $v->e($course['cta']) ?> →</a>
+          <?= $v->render('partials/whatsapp-link', ['label' => $course['cta'] . ' →', 'text' => $course['message'], 'class' => 'course__link']) ?>
         </li>
       <?php endforeach; ?>
     </ul>

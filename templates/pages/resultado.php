@@ -9,7 +9,6 @@
  */
 use FiloAcademia\Order\OrderStatus;
 
-$whatsapp = 'https://wa.me/' . $business['whatsapp'] . '?text=' . rawurlencode('Hola, mi pedido es ' . $order->folio);
 $isOxxoLike = $order->mpTicketUrl !== null;
 
 $state = match ($order->status) {
@@ -51,6 +50,13 @@ $state = match ($order->status) {
         'body' => 'Este pedido fue reembolsado. Si tienes dudas, escríbenos.',
     ],
 };
+// Primera línea del mensaje de WhatsApp según la situación del pedido.
+$whatsappIntro = match (true) {
+    $order->status === OrderStatus::Approved => 'Hola, ya pagué mi pedido en el sitio.',
+    $order->status === OrderStatus::Pending && $isOxxoLike => 'Hola, tengo una duda sobre el pago en efectivo (ficha) de mi pedido.',
+    $order->status->acceptsPayment() => 'Hola, tengo un problema para pagar mi pedido en el sitio.',
+    default => 'Hola, tengo una duda sobre mi pedido.',
+};
 $autoRefresh = in_array($order->status, [OrderStatus::InProcess], true)
     || ($order->status === OrderStatus::Pending && !$isOxxoLike && $order->mpPaymentId !== null);
 ?>
@@ -75,13 +81,13 @@ $autoRefresh = in_array($order->status, [OrderStatus::InProcess], true)
 
     <div class="status-hero__actions">
       <?php if ($order->status === OrderStatus::Pending && $isOxxoLike): ?>
-        <a class="btn" href="<?= $v->e($order->mpTicketUrl) ?>" target="_blank" rel="noopener">Ver mi ficha de pago</a>
+        <a class="btn" href="<?= $v->e($order->mpTicketUrl) ?>" target="_blank" rel="noopener">Ver mi ficha de pago<span class="visually-hidden"> (se abre en una pestaña nueva)</span></a>
       <?php elseif ($order->status->acceptsPayment()): ?>
         <a class="btn" href="<?= $v->e($v->urls()->payStep($order)) ?>"><?= $order->mpPaymentId === null ? 'Pagar ahora' : 'Intentar el pago de nuevo' ?></a>
       <?php else: ?>
         <a class="btn" href="<?= $v->e($v->url('/')) ?>">Volver al inicio</a>
       <?php endif; ?>
-      <a class="btn btn--ghost" href="<?= $v->e($whatsapp) ?>" rel="noopener">Escribir por WhatsApp</a>
+      <?= $v->render('partials/whatsapp-link', ['label' => 'Escribir por WhatsApp', 'text' => $v->whatsappOrderMessage($order, $whatsappIntro), 'class' => 'btn btn--ghost']) ?>
     </div>
   </section>
 

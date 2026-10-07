@@ -15,7 +15,7 @@
     <p><?= $v->e($message) ?></p>
     <div class="status-hero__actions">
       <a class="btn" href="<?= $v->e($v->url('/')) ?>">Volver al inicio</a>
-      <a class="btn btn--ghost" href="https://wa.me/<?= $v->e($business['whatsapp']) ?>" rel="noopener">Escribir por WhatsApp</a>
+      <?= $v->render('partials/whatsapp-link', ['label' => 'Escribir por WhatsApp', 'class' => 'btn btn--ghost']) ?>
     </div>
   </section>
 </div>

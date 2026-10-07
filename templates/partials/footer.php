@@ -16,7 +16,7 @@
     <div>
       <h2 class="site-footer__title">Contacto</h2>
       <ul>
-        <li><a href="https://wa.me/<?= $v->e($business['whatsapp']) ?>" rel="noopener">WhatsApp · <?= $v->e($business['phone_display']) ?></a></li>
+        <li><?= $v->render('partials/whatsapp-link', ['label' => 'WhatsApp · ' . $business['phone_display']]) ?></li>
         <li><a href="tel:<?= $v->e($business['phone_e164']) ?>">Teléfono · <?= $v->e($business['phone_display']) ?></a></li>
         <li><a href="mailto:<?= $v->e($business['email']) ?>"><?= $v->e($business['email']) ?></a></li>
       </ul>

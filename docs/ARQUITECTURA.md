@@ -118,6 +118,16 @@ Contrastes medidos (WCAG, texto normal requiere 4.5:1):
 
 El sitio es solo en modo claro por decisión de marca.
 
+## Componentes compartidos (no se duplican)
+
+- **Enlaces a WhatsApp**: siempre con `templates/partials/whatsapp-link.php`
+  (pestaña nueva, texto para lector de pantalla). Nunca escribir `wa.me` a mano.
+- **Mensaje de WhatsApp de un pedido**: `templates/whatsapp/order-message.php`
+  vía `$v->whatsappOrderMessage($order, $primeraLinea)`; lleva folio, servicios,
+  entrega, seguro, total y nombre para que el taller atienda sin preguntar.
+- **Resumen de pedido** en pantallas: `templates/partials/order-summary.php`; en
+  correos: `templates/emails/order-table.php`.
+
 ## Listas paralelas (se olvidan, y no se ve mirando)
 
 - **Enlaces de navegación**: `templates/partials/nav.php` (escritorio y móvil) y

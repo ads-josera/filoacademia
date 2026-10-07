@@ -16,7 +16,7 @@
  * @var string|null $gatewayError  Mercado Pago no respondió al preparar el cobro.
  * @var bool $retry            El pedido tuvo un intento rechazado o cancelado.
  */
-$whatsappText = rawurlencode(sprintf('Hola, tengo un problema para pagar el pedido %s', $order->folio));
+$whatsappText = $v->whatsappOrderMessage($order, 'Hola, tengo un problema para pagar mi pedido en el sitio.');
 ?>
 <div class="checkout">
   <div class="checkout__head">
@@ -49,7 +49,7 @@ $whatsappText = rawurlencode(sprintf('Hola, tengo un problema para pagar el pedi
           </div>
           <div class="status-hero__actions">
             <a class="btn" href="<?= $v->e($v->urls()->payStep($order)) ?>">Intentar de nuevo</a>
-            <a class="btn btn--ghost" href="https://wa.me/<?= $v->e($business['whatsapp']) ?>?text=<?= $whatsappText ?>" rel="noopener">Escribir por WhatsApp</a>
+            <?= $v->render('partials/whatsapp-link', ['label' => 'Escribir por WhatsApp', 'text' => $whatsappText, 'class' => 'btn btn--ghost']) ?>
           </div>
         </section>
       <?php elseif ($mode === 'bricks'): ?>
@@ -72,7 +72,7 @@ $whatsappText = rawurlencode(sprintf('Hola, tengo un problema para pagar el pedi
             <span class="alert__icon" aria-hidden="true">!</span>
             <div>
               <p data-brick-error-text>No se pudo procesar el pago. No se te cobró.</p>
-              <p><a href="<?= $v->e($v->urls()->payStep($order)) ?>">Recargar e intentar de nuevo</a> o <a href="https://wa.me/<?= $v->e($business['whatsapp']) ?>?text=<?= $whatsappText ?>" rel="noopener">escríbenos por WhatsApp</a>.</p>
+              <p><a href="<?= $v->e($v->urls()->payStep($order)) ?>">Recargar e intentar de nuevo</a> o <?= $v->render('partials/whatsapp-link', ['label' => 'escríbenos por WhatsApp', 'text' => $whatsappText]) ?>.</p>
             </div>
           </div>
         </section>
