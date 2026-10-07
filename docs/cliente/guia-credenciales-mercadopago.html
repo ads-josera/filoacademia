@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<title>Guía: credenciales de Mercado Pago · HERO Filo Academia</title>
+<!--
+  Fuente del PDF para el cliente. Para regenerarlo:
+  node <skill browser-automation>/browser.mjs file://.../guia-credenciales-mercadopago.html --script docs/cliente/pdf.mjs
+-->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=block">
+<style>
+  @page { size: Letter; margin: 18mm 18mm 20mm; }
+  :root {
+    --bg: #f5f2ec; --bg-alt: #ede8de; --surface: #fffdf8; --border: #ddd6c9;
+    --text: #1a1918; --muted: #54514b; --subtle: #68635a; --accent: #b23a2a;
+    --success: #2f6b3a; --success-bg: #e6efe4; --warning: #8a5a00; --warning-bg: #f6ecd6;
+    --display: 'Shippori Mincho', Georgia, serif; --body: 'Zen Kaku Gothic New', 'Helvetica Neue', Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: var(--body); font-size: 10.5pt; line-height: 1.6; color: var(--text); background: #fff; }
+  h1, h2, h3 { font-family: var(--display); font-weight: 600; line-height: 1.25; }
+  p + p { margin-top: 6pt; }
+  a { color: var(--accent); }
+  code, .mono { font-family: 'SFMono-Regular', Menlo, Consolas, monospace; font-size: 9pt; background: var(--bg-alt); padding: 1pt 4pt; border-radius: 2pt; }
+
+  .cover { display: flex; align-items: center; gap: 12pt; padding-bottom: 14pt; border-bottom: 1pt solid var(--border); margin-bottom: 18pt; }
+  .hanko { width: 30pt; height: 30pt; background: var(--accent); color: #fff; border-radius: 4pt; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: var(--display); font-size: 9pt; line-height: 1.1; }
+  .brand { font-family: var(--display); font-size: 14pt; letter-spacing: .22em; line-height: 1.1; }
+  .brand small { display: block; font-family: var(--body); font-size: 7pt; letter-spacing: .34em; color: var(--muted); margin-top: 2pt; }
+  .eyebrow { font-size: 8pt; letter-spacing: .28em; text-transform: uppercase; color: var(--accent); margin-bottom: 6pt; }
+  h1 { font-size: 22pt; margin-bottom: 8pt; }
+  .lead { font-size: 11pt; color: var(--muted); max-width: 150mm; }
+
+  .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8pt; margin: 16pt 0 6pt; }
+  .summary div { background: var(--bg); border: 1pt solid var(--border); border-radius: 3pt; padding: 9pt 10pt; }
+  .summary b { display: block; font-family: var(--display); font-size: 11pt; margin-bottom: 2pt; }
+  .summary span { font-size: 9pt; color: var(--muted); }
+  .meta { font-size: 9pt; color: var(--subtle); margin-top: 8pt; }
+
+  section.step { margin-top: 18pt; }
+  .step-head { break-after: avoid; }
+  ol.actions li, .faq dt, .faq dd { break-inside: avoid; }
+  .faq dt { break-after: avoid; }
+  .step-head { display: flex; align-items: baseline; gap: 10pt; margin-bottom: 6pt; border-bottom: 1pt solid var(--text); padding-bottom: 4pt; }
+  .step-num { font-family: var(--display); font-size: 18pt; color: var(--accent); min-width: 18pt; }
+  h2 { font-size: 14pt; }
+  ol.actions { margin: 6pt 0 0 16pt; }
+  ol.actions li { margin: 3pt 0; padding-left: 2pt; }
+  .ui { font-weight: 700; }
+  .ui::before { content: '«'; font-weight: 400; color: var(--subtle); }
+  .ui::after { content: '»'; font-weight: 400; color: var(--subtle); }
+
+  .note { margin-top: 8pt; padding: 8pt 10pt; border-left: 2.5pt solid var(--subtle); background: var(--bg); font-size: 9.5pt; color: var(--muted); border-radius: 0 3pt 3pt 0; break-inside: avoid; }
+  .note--warn { border-color: var(--warning); background: var(--warning-bg); color: #5c3c00; }
+  .note--ok { border-color: var(--success); background: var(--success-bg); color: #1f4a28; }
+  .note b { color: inherit; }
+
+  table.collect { width: 100%; border-collapse: collapse; margin-top: 8pt; font-size: 9.5pt; break-inside: avoid; }
+  table.collect th { text-align: left; font-size: 8pt; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 500; padding: 5pt 6pt; border-bottom: 1pt solid var(--text); }
+  table.collect td { padding: 6pt; border-bottom: 1pt solid var(--border); vertical-align: top; }
+  table.collect td:first-child { font-weight: 700; width: 34%; }
+  .box { display: inline-block; width: 9pt; height: 9pt; border: 1pt solid var(--subtle); border-radius: 1.5pt; vertical-align: -1pt; margin-right: 5pt; }
+  .tag { display: inline-block; font-size: 7.5pt; letter-spacing: .08em; text-transform: uppercase; padding: 1pt 5pt; border-radius: 8pt; font-weight: 700; }
+  .tag--safe { background: var(--success-bg); color: var(--success); }
+  .tag--secret { background: #f7e4df; color: #9b2a1e; }
+
+  .email { margin-top: 8pt; border: 1pt solid var(--border); border-radius: 3pt; background: var(--surface); padding: 10pt 12pt; font-size: 9.5pt; white-space: pre-wrap; font-family: var(--body); break-inside: avoid; }
+  .faq dt { font-weight: 700; margin-top: 8pt; }
+  .faq dd { color: var(--muted); }
+  footer.doc { margin-top: 20pt; padding-top: 8pt; border-top: 1pt solid var(--border); font-size: 8.5pt; color: var(--subtle); display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+
+<header class="cover">
+  <span class="hanko"><span>英</span><span>雄</span></span>
+  <span class="brand">HERO<small>FILO ACADEMIA</small></span>
+</header>
+
+<p class="eyebrow">Pagos en línea · Guía para el negocio</p>
+<h1>Cómo obtener sus credenciales de Mercado&nbsp;Pago</h1>
+<p class="lead">Para que sus clientes puedan pagar en el sitio, el sitio necesita unas «llaves» de su cuenta de Mercado Pago. Con ellas el dinero de cada venta llega directo a <b>su</b> cuenta. Esta guía le lleva paso a paso para obtenerlas y enviárnoslas.</p>
+
+<div class="summary">
+  <div><b>1 · Llaves de prueba</b><span>Para probar cobros con dinero ficticio antes de abrir.</span></div>
+  <div><b>2 · Cuentas de prueba</b><span>Un «comprador» ficticio para simular compras.</span></div>
+  <div><b>3 · Llaves de producción</b><span>Para cobrar de verdad cuando el sitio esté listo.</span></div>
+</div>
+<p class="meta">Tiempo estimado: 15 a 20 minutos · Desde una computadora · No tiene costo crear la integración.</p>
+
+<div class="note">
+  <b>Antes de empezar, tenga a la mano:</b> el correo y la contraseña de la cuenta de Mercado Pago <b>del negocio</b> (la que va a recibir el dinero) y su celular, porque Mercado Pago puede pedirle un código o verificar su identidad.
+</div>
+
+<section class="step">
+  <div class="step-head"><span class="step-num">1</span><h2>Entrar al panel de desarrolladores</h2></div>
+  <ol class="actions">
+    <li>Abra <a href="https://www.mercadopago.com.mx/developers/panel/app">mercadopago.com.mx/developers/panel/app</a>.</li>
+    <li>Inicie sesión con la cuenta de Mercado Pago <b>del negocio</b>.</li>
+    <li>Llegará a la sección <span class="ui">Tus integraciones</span>.</li>
+  </ol>
+</section>
+
+<section class="step">
+  <div class="step-head"><span class="step-num">2</span><h2>Crear la aplicación del sitio</h2></div>
+  <ol class="actions">
+    <li>Haga clic en <span class="ui">Crear aplicación</span>.</li>
+    <li>Nombre de la aplicación: <code>HERO Filo Academia - Sitio web</code>.</li>
+    <li>Tipo de solución: <span class="ui">Pagos online</span>.</li>
+    <li>Si pregunta si usa una plataforma de comercio electrónico (Shopify, etc.), responda <span class="ui">No</span>.</li>
+    <li>Producto a integrar: <span class="ui">Checkout Pro</span>. Si le permite elegir más de uno, marque también <span class="ui">Checkout Bricks</span>.</li>
+    <li>Acepte los términos y confirme con <span class="ui">Crear aplicación</span>.</li>
+  </ol>
+  <div class="note">Mercado Pago puede pedirle <b>verificar su identidad</b> (foto de identificación oficial). Es normal y protege su cuenta. Los nombres de los botones pueden cambiar ligeramente: elija siempre la opción más parecida.</div>
+</section>
+
+<section class="step">
+  <div class="step-head"><span class="step-num">3</span><h2>Copiar las credenciales de prueba</h2></div>
+  <ol class="actions">
+    <li>Dentro de la aplicación, en el menú de la izquierda, abra <span class="ui">Pruebas</span> → <span class="ui">Credenciales de prueba</span>.</li>
+    <li>Copie la <b>Public Key</b> (empieza con <code>APP_USR-</code> o <code>TEST-</code>).</li>
+    <li>Copie el <b>Access Token</b> (es más largo; también empieza con <code>APP_USR-</code> o <code>TEST-</code>).</li>
+  </ol>
+  <div class="note">Si no aparecen, haga clic en <span class="ui">Activar credenciales</span>. Con estas llaves <b>no se mueve dinero real</b>.</div>
+</section>
+
+<section class="step">
+  <div class="step-head"><span class="step-num">4</span><h2>Copiar la cuenta de prueba del comprador</h2></div>
+  <ol class="actions">
+    <li>En el mismo menú, abra <span class="ui">Pruebas</span> → <span class="ui">Cuentas de prueba</span>.</li>
+    <li>Verá cuentas ficticias de <b>Vendedor</b> y <b>Comprador</b>. Si no hay ninguna de comprador, haga clic en <span class="ui">+ Crear cuenta de prueba</span>, elija <b>Comprador</b>, país <b>México</b>, y póngale un saldo ficticio (por ejemplo, 10,000).</li>
+    <li>De la cuenta <b>Comprador</b>, copie el <b>Usuario</b> y la <b>Contraseña</b>.</li>
+  </ol>
+  <div class="note">Son cuentas inventadas por Mercado Pago, sin datos ni dinero suyos. Las usamos para simular compras con tarjetas de prueba.</div>
+</section>
+
+<section class="step">
+  <div class="step-head"><span class="step-num">5</span><h2>Activar y copiar las credenciales de producción</h2></div>
+  <ol class="actions">
+    <li>En el menú de la izquierda, abra <span class="ui">Producción</span> → <span class="ui">Credenciales de producción</span>.</li>
+    <li>Si se lo pide, haga clic en <span class="ui">Activar credenciales</span> y complete:
+      <ul style="margin: 3pt 0 0 14pt">
+        <li><b>Industria o giro:</b> servicios (o la opción más cercana a «afilado y reparación de cuchillos»).</li>
+        <li><b>Sitio web:</b> la dirección del sitio de HERO Filo Academia. Si aún no está en línea, escriba la que se va a usar.</li>
+      </ul>
+    </li>
+    <li>Copie la <b>Public Key</b> y el <b>Access Token</b> de producción.</li>
+  </ol>
+  <div class="note note--warn"><b>Importante:</b> el <b>Access Token de producción</b> permite cobrar en nombre de su cuenta. Trátelo como una contraseña: no lo publique ni lo comparta con nadie más que con nosotros. Si algún día lo necesita, se puede <b>renovar</b> desde esta misma pantalla y el anterior deja de funcionar.</div>
+</section>
+
+<section class="step">
+  <div class="step-head"><span class="step-num">6</span><h2>Enviarnos la información</h2></div>
+  <p>Marque cada dato conforme lo copie:</p>
+  <table class="collect">
+    <thead><tr><th>Dato</th><th>Dónde está</th><th>Tipo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="box"></span>Public Key de prueba</td><td>Pruebas → Credenciales de prueba</td><td><span class="tag tag--safe">Prueba</span></td></tr>
+      <tr><td><span class="box"></span>Access Token de prueba</td><td>Pruebas → Credenciales de prueba</td><td><span class="tag tag--safe">Prueba</span></td></tr>
+      <tr><td><span class="box"></span>Usuario y contraseña del comprador de prueba</td><td>Pruebas → Cuentas de prueba</td><td><span class="tag tag--safe">Prueba</span></td></tr>
+      <tr><td><span class="box"></span>Public Key de producción</td><td>Producción → Credenciales de producción</td><td><span class="tag tag--safe">Pública</span></td></tr>
+      <tr><td><span class="box"></span>Access Token de producción</td><td>Producción → Credenciales de producción</td><td><span class="tag tag--secret">Secreta</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="note note--ok"><b>Recomendación de seguridad:</b> envíe todo por correo a <b>ads@josera.com.mx</b>, <b>excepto el Access Token de producción</b>: ese mándelo en un mensaje aparte por WhatsApp directo a José Raúl Perea. Así, si alguien llegara a ver uno de los dos mensajes, no tendría la información completa.</div>
+
+  <p style="margin-top: 10pt"><b>Puede copiar este correo y completarlo:</b></p>
+  <div class="email"><b>Para:</b> ads@josera.com.mx
+<b>Asunto:</b> Credenciales de Mercado Pago · HERO Filo Academia
+
+Hola José Raúl, estas son las credenciales de Mercado Pago:
+
+PRUEBAS
+Public Key de prueba: ________________________________
+Access Token de prueba: ______________________________
+Comprador de prueba · usuario: ________________________
+Comprador de prueba · contraseña: _____________________
+
+PRODUCCIÓN
+Public Key de producción: _____________________________
+(El Access Token de producción se lo envío por WhatsApp.)
+
+Saludos.</div>
+</section>
+
+<section class="step">
+  <div class="step-head"><span class="step-num">7</span><h2>Más adelante: notificaciones de pago</h2></div>
+  <p>Cuando el sitio esté instalado le enviaremos una dirección web para que Mercado Pago avise al sitio de cada pago (incluidos los pagos en OXXO). Ese paso toma 2 minutos y le daremos instrucciones en su momento:</p>
+  <ol class="actions">
+    <li>En su aplicación: <span class="ui">Webhooks</span> → <span class="ui">Configurar notificaciones</span>.</li>
+    <li>Pegar la dirección que le enviemos y marcar el evento <span class="ui">Pagos</span>.</li>
+    <li>Guardar y enviarnos la <b>clave secreta</b> que aparece (también por WhatsApp).</li>
+  </ol>
+</section>
+
+<section class="step">
+  <div class="step-head"><span class="step-num">?</span><h2>Preguntas frecuentes</h2></div>
+  <dl class="faq">
+    <dt>¿Tiene costo?</dt>
+    <dd>Crear la aplicación y las credenciales no cuesta. Mercado Pago cobra su comisión habitual por cada venta, como en cualquier cobro con su cuenta.</dd>
+    <dt>¿El dinero llega a mi cuenta?</dt>
+    <dd>Sí. Cada pago entra directo a la cuenta de Mercado Pago con la que creó las credenciales. Nosotros nunca recibimos ni tocamos el dinero.</dd>
+    <dt>¿Qué se puede hacer con el Access Token?</dt>
+    <dd>Cobrar desde el sitio, consultar los pagos que entran por la integración y hacer reembolsos. Por eso se trata como una contraseña y solo se guarda en el servidor del sitio. Si en algún momento deja de trabajar con nosotros, renueve las credenciales desde el panel y las anteriores dejan de funcionar.</dd>
+    <dt>¿Y si me equivoco o algo no aparece igual?</dt>
+    <dd>No pasa nada: nada de esto afecta su cuenta ni su dinero. Escríbanos por WhatsApp con una captura de pantalla y le guiamos.</dd>
+  </dl>
+</section>
+
+<footer class="doc">
+  <span>HERO · Filo Academia · Guía de credenciales de Mercado Pago</span>
+  <span>Preparado por José Raúl Perea · ads@josera.com.mx</span>
+</footer>
+
+</body>
+</html>
