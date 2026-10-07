@@ -68,6 +68,7 @@ final class WhatsAppLinkTest extends TestCase
         self::assertSame('Bank Transfer', $this->view->paymentMethodLabel('bank_transfer'));
         self::assertSame('7 oct 2026, 11:00', $this->view->dateTime('2026-10-07 11:00:05'));
         self::assertSame('—', $this->view->dateTime(null));
+        self::assertSame('https://www.google.com/maps/search/?api=1&query=Eje%201%20Norte%20%2356%2C%20CDMX', $this->view->mapsUrl("Eje 1 Norte #56,\n  CDMX"));
     }
 
     public function testSinMensajeEsElEnlaceSimple(): void

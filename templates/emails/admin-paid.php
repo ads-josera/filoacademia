@@ -33,7 +33,7 @@ ob_start();
   <tr><td style="<?= $label ?>">WhatsApp</td><td style="<?= $value ?>"><a href="<?= $v->e($customerWhatsapp) ?>" target="_blank" style="<?= $link ?>"><?= $v->e($order->customerPhone) ?></a></td></tr>
   <tr><td style="<?= $label ?>">Correo</td><td style="<?= $value ?>"><a href="mailto:<?= $v->e($order->customerEmail) ?>" style="<?= $link ?>"><?= $v->e($order->customerEmail) ?></a></td></tr>
   <?php if ($order->customerAddress !== null): ?>
-    <tr><td style="<?= $label ?>">Dirección</td><td style="<?= $value ?>"><?= nl2br($v->e($order->customerAddress)) ?></td></tr>
+    <tr><td style="<?= $label ?>">Dirección</td><td style="<?= $value ?>"><a href="<?= $v->e($v->mapsUrl($order->customerAddress)) ?>" target="_blank" style="<?= $link ?>"><?= nl2br($v->e($order->customerAddress)) ?></a></td></tr>
   <?php endif; ?>
   <?php if ($order->customerNotes !== null): ?>
     <tr><td style="<?= $label ?>">Notas</td><td style="<?= $value ?>"><?= nl2br($v->e($order->customerNotes)) ?></td></tr>

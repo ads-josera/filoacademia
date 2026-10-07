@@ -33,6 +33,10 @@
 <!--<![endif]-->
 <style>
   :root { color-scheme: light; supported-color-schemes: light; }
+  /* Datos que Apple Mail y Gmail convierten solos en enlace (direcciones,
+     teléfonos, fechas): heredan el color del texto en vez de su azul. */
+  a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; font-size: inherit !important; font-family: inherit !important; font-weight: inherit !important; line-height: inherit !important; }
+  u + #body a, #MessageViewBody a { color: inherit; text-decoration: none; font-size: inherit; font-family: inherit; font-weight: inherit; line-height: inherit; }
   @media (max-width: 600px) {
     .card-pad { padding: 24px 20px !important; }
     .head-pad { padding: 20px !important; }
@@ -40,7 +44,7 @@
   }
 </style>
 </head>
-<body style="margin:0;padding:0;background-color:#f5f2ec;color:#1a1918;-webkit-text-size-adjust:100%;">
+<body id="body" style="margin:0;padding:0;background-color:#f5f2ec;color:#1a1918;-webkit-text-size-adjust:100%;">
 <div style="display:none;font-size:1px;line-height:1px;max-height:0;max-width:0;overflow:hidden;mso-hide:all;"><?= $v->e($preheader) ?>&#8199;&#65279;&#847;&#8199;&#65279;&#847;&#8199;&#65279;&#847;&#8199;&#65279;&#847;&#8199;&#65279;&#847;&#8199;&#65279;&#847;</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f5f2ec" style="background-color:#f5f2ec;">
   <tr>
@@ -60,7 +64,7 @@
         <tr>
           <td bgcolor="#1a1918" style="padding:24px 32px;background-color:#1a1918;font-family:'Zen Kaku Gothic New','Helvetica Neue',Helvetica,Arial,sans-serif;font-size:13px;line-height:1.7;color:#c9c4bb;">
             <strong style="color:#f5f2ec;"><?= $v->e($business['name']) ?></strong><br>
-            <?= $v->e(implode(', ', $business['address_lines'])) ?><br>
+            <a href="<?= $v->e($v->mapsUrl(implode(', ', $business['address_lines']))) ?>" target="_blank" style="color:#c9c4bb;text-decoration:none;"><?= $v->e(implode(', ', $business['address_lines'])) ?></a><br>
             <?= $v->e(implode(' · ', $business['hours'])) ?><br>
             <a href="<?= $v->e($v->whatsappUrl()) ?>" style="color:#f5f2ec;text-decoration:underline;">WhatsApp <?= $v->e($business['phone_display']) ?></a>
             &nbsp;·&nbsp;

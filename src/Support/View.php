@@ -68,6 +68,15 @@ final class View
         return '$' . number_format((float) $amount, 0, '.', ',');
     }
 
+    /**
+     * Enlace a Google Maps para una dirección. En correos, las direcciones se
+     * enlazan así a propósito: si no, Gmail las detecta y les pone su azul.
+     */
+    public function mapsUrl(string $address): string
+    {
+        return 'https://www.google.com/maps/search/?api=1&query=' . rawurlencode(preg_replace('/\s+/', ' ', trim($address)) ?? '');
+    }
+
     /** Primer nombre con mayúscula inicial («jose luis» → «Jose»), para saludos. */
     public function firstName(string $fullName): string
     {

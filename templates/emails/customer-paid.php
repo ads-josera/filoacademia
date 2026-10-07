@@ -19,7 +19,7 @@ ob_start();
 
 <h2 style="margin:0 0 8px;<?= $display ?>font-size:18px;">Qué sigue</h2>
 <?php if ($order->deliveryId === 'taller'): ?>
-  <p style="<?= $muted ?>">Tráenos tus cuchillos al taller: <?= $v->e(implode(', ', $business['address_lines'])) ?>. Horario: <?= $v->e(implode(' · ', $business['hours'])) ?>. Menciona tu folio al llegar.</p>
+  <p style="<?= $muted ?>">Tráenos tus cuchillos al taller: <a href="<?= $v->e($v->mapsUrl(implode(', ', $business['address_lines']))) ?>" target="_blank" style="color:#b23a2a;text-decoration:underline;"><?= $v->e(implode(', ', $business['address_lines'])) ?></a>. Horario: <?= $v->e(implode(' · ', $business['hours'])) ?>. Menciona tu folio al llegar.</p>
 <?php else: ?>
   <p style="<?= $muted ?>">Te escribimos por WhatsApp al <?= $v->e($order->customerPhone) ?> en <?= $v->e($business['response_time']) ?> para agendar la recolección o enviarte tu guía de paquetería.</p>
 <?php endif; ?>
