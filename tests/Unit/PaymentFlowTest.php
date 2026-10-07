@@ -9,6 +9,7 @@ use FiloAcademia\Catalog\QuoteCalculator;
 use FiloAcademia\Mail\Email;
 use FiloAcademia\Mail\MailException;
 use FiloAcademia\Mail\Mailer;
+use FiloAcademia\Mail\OrderEmails;
 use FiloAcademia\Mail\OrderNotifier;
 use FiloAcademia\Order\Order;
 use FiloAcademia\Order\OrderRepository;
@@ -53,7 +54,8 @@ final class PaymentFlowTest extends TestCase
         $this->mailer = new RecordingMailer();
         $urls = new Urls('https://filoacademia.test');
         $view = new View($root . '/templates', $root . '/public', $urls, ['business' => require $root . '/config/business.php']);
-        $notifier = new OrderNotifier($this->mailer, $this->orders, $view, $logger, ['taller@ejemplo.mx'], 'hola@ejemplo.mx');
+        $emails = new OrderEmails($view, $root . '/templates/emails/assets', ['taller@ejemplo.mx'], 'hola@ejemplo.mx');
+        $notifier = new OrderNotifier($this->mailer, $this->orders, $emails, $logger);
 
         $this->sync = new PaymentSyncService($this->gateway, $this->orders, $notifier, $logger);
         $this->checkout = new CheckoutService(
@@ -168,6 +170,9 @@ final class PaymentFlowTest extends TestCase
         self::assertSame(['taller@ejemplo.mx'], $this->mailer->sent[1]->to);
         self::assertSame('ana@ejemplo.mx', $this->mailer->sent[1]->replyTo);
         self::assertStringContainsString('$2,870', $this->mailer->sent[1]->html);
+        // El logo viaja dentro del correo (no depende de imágenes remotas).
+        self::assertStringContainsString('src="cid:logo"', $this->mailer->sent[0]->html);
+        self::assertFileExists($this->mailer->sent[0]->inlineImages['logo']);
     }
 
     public function testPagoPendienteNoEnviaCorreos(): void

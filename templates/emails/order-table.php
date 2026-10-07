@@ -5,7 +5,7 @@
  * @var FiloAcademia\Support\View $v
  * @var FiloAcademia\Order\Order $order
  */
-$cell = 'padding:8px 0;border-bottom:1px solid #ddd6c9;font-size:14px;';
+$cell = 'padding:10px 0;border-bottom:1px solid #ddd6c9;font-size:14px;color:#1a1918;';
 $amount = $cell . 'text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;';
 ?>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:16px 0 24px;">
@@ -26,7 +26,7 @@ $amount = $cell . 'text-align:right;white-space:nowrap;font-variant-numeric:tabu
     </tr>
   <?php endif; ?>
   <tr>
-    <td style="padding:12px 0 0;font-size:15px;font-weight:bold;">Total pagado</td>
-    <td style="padding:12px 0 0;font-size:18px;font-weight:bold;text-align:right;white-space:nowrap;font-family:Georgia,serif;"><?= $v->money($order->total) ?> <?= $v->e($order->currency) ?></td>
+    <td style="padding:12px 0 0;font-size:15px;font-weight:700;color:#1a1918;">Total pagado</td>
+    <td style="padding:12px 0 0;font-size:20px;font-weight:600;text-align:right;white-space:nowrap;font-family:'Shippori Mincho',Georgia,serif;color:#1a1918;"><?= $v->money($order->total) ?> <?= $v->e($order->currency) ?></td>
   </tr>
 </table>

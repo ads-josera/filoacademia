@@ -44,11 +44,12 @@ return [
 
     'mail' => [
         // smtp → envía de verdad (cuenta de correo de cPanel).
-        // log  → guarda cada correo en storage/mail/ sin enviarlo (desarrollo).
+        // log  → guarda cada correo en storage/mail/ sin enviarlo (desarrollo sin DDEV).
         'transport' => 'log',
         'host' => 'mail.tudominio.mx',
         'port' => 465,
-        // ssl (puerto 465) | tls (puerto 587)
+        // ssl (puerto 465) | tls (puerto 587) | none (solo Mailpit de DDEV:
+        // host 'localhost', puerto 1025, username '' → https://filoacademia.ddev.site:8026)
         'encryption' => 'ssl',
         'username' => 'pagos@tudominio.mx',
         'password' => '',

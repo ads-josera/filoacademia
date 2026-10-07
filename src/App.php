@@ -8,6 +8,7 @@ use FiloAcademia\Catalog\Catalog;
 use FiloAcademia\Catalog\QuoteCalculator;
 use FiloAcademia\Mail\LogMailer;
 use FiloAcademia\Mail\Mailer;
+use FiloAcademia\Mail\OrderEmails;
 use FiloAcademia\Mail\OrderNotifier;
 use FiloAcademia\Mail\SmtpMailer;
 use FiloAcademia\Order\OrderRepository;
@@ -117,15 +118,23 @@ final class App
             : new LogMailer($this->rootDir . '/storage/mail'));
     }
 
+    public function orderEmails(): OrderEmails
+    {
+        return $this->shared(OrderEmails::class, fn (): OrderEmails => new OrderEmails(
+            $this->view(),
+            $this->rootDir . '/templates/emails/assets',
+            array_values(array_filter((array) $this->config->get('mail.admin_recipients', []))),
+            (string) $this->business['email'],
+        ));
+    }
+
     public function notifier(): OrderNotifier
     {
         return $this->shared(OrderNotifier::class, fn (): OrderNotifier => new OrderNotifier(
             $this->mailer(),
             $this->orders(),
-            $this->view(),
+            $this->orderEmails(),
             $this->logger(),
-            array_values(array_filter((array) $this->config->get('mail.admin_recipients', []))),
-            (string) $this->business['email'],
         ));
     }
 

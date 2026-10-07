@@ -34,10 +34,17 @@ final class SmtpMailer implements Mailer
             $mail->isSMTP();
             $mail->Host = $this->host;
             $mail->Port = $this->port;
-            $mail->SMTPAuth = true;
+            // Sin usuario = servidor sin autenticación (Mailpit en DDEV).
+            $mail->SMTPAuth = $this->username !== '';
             $mail->Username = $this->username;
             $mail->Password = $this->password;
-            $mail->SMTPSecure = $this->encryption === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
+            if ($this->encryption === 'none') {
+                // Solo para desarrollo local (Mailpit). En producción: ssl o tls.
+                $mail->SMTPSecure = '';
+                $mail->SMTPAutoTLS = false;
+            } else {
+                $mail->SMTPSecure = $this->encryption === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
+            }
             $mail->Timeout = 20;
             $mail->CharSet = PHPMailer::CHARSET_UTF8;
 
@@ -47,6 +54,10 @@ final class SmtpMailer implements Mailer
             }
             if ($email->replyTo !== null) {
                 $mail->addReplyTo($email->replyTo);
+            }
+
+            foreach ($email->inlineImages as $cid => $path) {
+                $mail->addEmbeddedImage($path, $cid, basename($path));
             }
 
             $mail->isHTML(true);

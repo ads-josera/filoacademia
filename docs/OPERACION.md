@@ -61,6 +61,23 @@ grep '"ERROR"' ~/filoacademia/storage/logs/app-*.log | tail
 | Página en blanco | Error de PHP | `storage/logs/php-errors.log` |
 | El cliente pagó dos veces | Pagó con OXXO y luego con tarjeta | El pedido queda con el primer pago aprobado; reembolsa el otro desde Mercado Pago |
 
+## Probar y revisar los correos
+
+| Herramienta | Qué hace |
+|---|---|
+| **Mailpit** (DDEV) | Atrapa todos los correos locales: <https://filoacademia.ddev.site:8026>. Pestaña *HTML Check* = compatibilidad por cliente de correo; *Link Check* = enlaces rotos. Config local: `transport 'smtp'`, `host 'localhost'`, `port 1025`, `encryption 'none'`, `username ''` |
+| `php bin/mail-preview.php HF-123456 [correo]` | Reenvía los correos de un pedido existente sin cambiar su estado |
+| `php bin/mail-test-flow.php correo@destino` | Prueba de punta a punta por el camino real: crea un pedido de prueba y simula un pago aprobado (no corre en producción) |
+
+En pruebas con un SMTP real, cambia antes `mail.admin_recipients` a tu propio
+correo: si no, el aviso de prueba le llega al buzón del cliente.
+
+Los correos se construyen en `src/Mail/OrderEmails.php` con las plantillas de
+`templates/emails/`. El logo va **incrustado** (`templates/emails/assets/logo.png`,
+`cid:logo`), así que se ve aunque el sitio no esté en línea. Compatibilidad
+medida en Mailpit: 97–98 %; lo que falta son mejoras que fallan sin romper nada
+(tipografías web y ajustes móviles en clientes que no los soportan).
+
 ## Cobrar una diferencia o reembolsar
 
 El precio final se confirma al revisar el cuchillo:

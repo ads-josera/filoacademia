@@ -68,6 +68,44 @@ final class View
         return '$' . number_format((float) $amount, 0, '.', ',');
     }
 
+    /** Primer nombre con mayúscula inicial («jose luis» → «Jose»), para saludos. */
+    public function firstName(string $fullName): string
+    {
+        $first = explode(' ', trim($fullName))[0];
+
+        return mb_convert_case($first, MB_CASE_TITLE, 'UTF-8');
+    }
+
+    /** «visa» → «Visa», «account_money» → «Saldo de Mercado Pago». */
+    public function paymentMethodLabel(?string $methodId): string
+    {
+        return match ($methodId) {
+            null, '' => '—',
+            'visa' => 'Visa',
+            'master' => 'Mastercard',
+            'amex' => 'American Express',
+            'debvisa' => 'Visa débito',
+            'debmaster' => 'Mastercard débito',
+            'oxxo' => 'Efectivo en OXXO',
+            'paycash' => 'Efectivo (PayCash)',
+            'account_money' => 'Saldo de Mercado Pago',
+            'consumer_credits' => 'Mercado Crédito',
+            default => mb_convert_case(str_replace('_', ' ', $methodId), MB_CASE_TITLE, 'UTF-8'),
+        };
+    }
+
+    /** «2026-10-07 11:00:05» → «7 oct 2026, 11:00». */
+    public function dateTime(?string $value): string
+    {
+        if ($value === null || $value === '') {
+            return '—';
+        }
+        $months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+        $date = new \DateTimeImmutable($value);
+
+        return sprintf('%d %s %s, %s', (int) $date->format('j'), $months[(int) $date->format('n') - 1], $date->format('Y'), $date->format('H:i'));
+    }
+
     public function url(string $path = '/'): string
     {
         return $this->urls->path($path);

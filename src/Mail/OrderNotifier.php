@@ -7,7 +7,6 @@ namespace FiloAcademia\Mail;
 use FiloAcademia\Order\Order;
 use FiloAcademia\Order\OrderRepository;
 use FiloAcademia\Support\Logger;
-use FiloAcademia\Support\View;
 
 /**
  * Avisos de pago aprobado: uno al cliente y otro al taller.
@@ -18,41 +17,25 @@ use FiloAcademia\Support\View;
  */
 final class OrderNotifier
 {
-    /** @param list<string> $adminRecipients */
     public function __construct(
         private readonly Mailer $mailer,
         private readonly OrderRepository $orders,
-        private readonly View $view,
+        private readonly OrderEmails $emails,
         private readonly Logger $logger,
-        private readonly array $adminRecipients,
-        /** A dónde llegan las respuestas del cliente («Responde a este correo»). */
-        private readonly ?string $customerReplyTo = null,
     ) {
     }
 
     public function notifyPaid(Order $order): void
     {
-        $this->sendOnce($order, 'customer', fn (): Email => new Email(
-            to: [$order->customerEmail],
-            subject: sprintf('Pago recibido · pedido %s', $order->folio),
-            html: $this->view->render('emails/customer-paid', ['order' => $order]),
-            text: $this->view->render('emails/customer-paid-text', ['order' => $order]),
-            replyTo: $this->customerReplyTo,
-        ));
+        $this->sendOnce($order, 'customer', fn (): Email => $this->emails->customerPaid($order));
 
-        if ($this->adminRecipients === []) {
+        if ($this->emails->adminRecipients() === []) {
             $this->logger->warning('Sin destinatarios de administración: no se avisó del pago.', ['folio' => $order->folio]);
 
             return;
         }
 
-        $this->sendOnce($order, 'admin', fn (): Email => new Email(
-            to: $this->adminRecipients,
-            subject: sprintf('Nuevo pago · %s · %s · %s', $order->folio, $this->view->money($order->total), $order->customerName),
-            html: $this->view->render('emails/admin-paid', ['order' => $order]),
-            text: $this->view->render('emails/admin-paid-text', ['order' => $order]),
-            replyTo: $order->customerEmail,
-        ));
+        $this->sendOnce($order, 'admin', fn (): Email => $this->emails->adminPaid($order));
     }
 
     /** @param 'customer'|'admin' $recipient */

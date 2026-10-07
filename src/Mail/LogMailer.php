@@ -26,7 +26,14 @@ final class LogMailer implements Mailer
             $email->subject,
         );
 
-        if (file_put_contents($file, $header . $email->html) === false) {
+        // Las imágenes cid: se convierten en data: para que el .html se vea completo.
+        $html = $email->html;
+        foreach ($email->inlineImages as $cid => $path) {
+            $data = 'data:' . (mime_content_type($path) ?: 'image/png') . ';base64,' . base64_encode((string) file_get_contents($path));
+            $html = str_replace('cid:' . $cid, $data, $html);
+        }
+
+        if (file_put_contents($file, $header . $html) === false) {
             throw new MailException('No se pudo escribir ' . $file);
         }
     }

@@ -39,4 +39,6 @@ Notas: <?= $order->customerNotes ?>
 Total: <?= $v->money($order->total) ?>
 
 
-ID de pago Mercado Pago: <?= $order->mpPaymentId ?> (<?= $order->mpPaymentMethod ?>)
+<?php if ($order->mpPaymentId !== null): ?>
+Pago: <?= $v->paymentMethodLabel($order->mpPaymentMethod) ?> · <?= $v->dateTime($order->paidAt) ?> · ID Mercado Pago <?= $order->mpPaymentId ?>
+<?php endif; ?>

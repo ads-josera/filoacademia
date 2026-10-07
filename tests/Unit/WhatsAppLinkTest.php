@@ -59,6 +59,17 @@ final class WhatsAppLinkTest extends TestCase
         self::assertStringContainsString('se abre en una pestaña nueva', $html);
     }
 
+    public function testFormatosDeCorreo(): void
+    {
+        self::assertSame('Jose', $this->view->firstName('jose luis pérez'));
+        self::assertSame('Ánimas', $this->view->firstName('  ánimas'));
+        self::assertSame('Visa', $this->view->paymentMethodLabel('visa'));
+        self::assertSame('Efectivo en OXXO', $this->view->paymentMethodLabel('oxxo'));
+        self::assertSame('Bank Transfer', $this->view->paymentMethodLabel('bank_transfer'));
+        self::assertSame('7 oct 2026, 11:00', $this->view->dateTime('2026-10-07 11:00:05'));
+        self::assertSame('—', $this->view->dateTime(null));
+    }
+
     public function testSinMensajeEsElEnlaceSimple(): void
     {
         self::assertSame('https://wa.me/525542588200', $this->view->whatsappUrl());

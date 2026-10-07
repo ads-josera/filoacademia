@@ -10,7 +10,7 @@
 Pago recibido · pedido <?= $order->folio ?>
 
 
-Hola <?= explode(' ', $order->customerName)[0] ?>, gracias por confiarnos tus cuchillos.
+Hola <?= $v->firstName($order->customerName) ?>, gracias por confiarnos tus cuchillos.
 
 <?php foreach ($order->lines as $line): ?>
 - <?= $line['name'] ?> × <?= $line['qty'] ?>: <?= $v->money($line['unit_price'] * $line['qty']) ?>
