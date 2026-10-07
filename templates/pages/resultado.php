@@ -18,7 +18,13 @@ $state = match ($order->status) {
         'title' => 'Pago recibido',
         'body' => sprintf('Te enviamos la confirmación a %s. Te contactamos por WhatsApp en %s para agendar la recolección o enviarte tu guía.', $order->customerEmail, $business['response_time']),
     ],
-    OrderStatus::Pending => $isOxxoLike
+    OrderStatus::Pending => $order->mpPaymentId === null
+        ? [
+            'icon' => 'warning', 'symbol' => '…',
+            'title' => 'Tu pedido está guardado, falta el pago',
+            'body' => 'No recibimos ningún pago para este pedido. Puedes pagarlo ahora; si ya pagaste y saliste antes de volver aquí, la confirmación te llegará por correo en unos minutos.',
+        ]
+        : ($isOxxoLike
         ? [
             'icon' => 'warning', 'symbol' => '…',
             'title' => 'Falta completar tu pago',
@@ -28,7 +34,7 @@ $state = match ($order->status) {
             'icon' => 'warning', 'symbol' => '…',
             'title' => 'Esperando confirmación del pago',
             'body' => 'Todavía no recibimos la confirmación de Mercado Pago. Puede tardar unos minutos; esta página se actualiza sola.',
-        ],
+        ]),
     OrderStatus::InProcess => [
         'icon' => 'warning', 'symbol' => '…',
         'title' => 'Tu pago está en revisión',
@@ -46,7 +52,7 @@ $state = match ($order->status) {
     ],
 };
 $autoRefresh = in_array($order->status, [OrderStatus::InProcess], true)
-    || ($order->status === OrderStatus::Pending && !$isOxxoLike);
+    || ($order->status === OrderStatus::Pending && !$isOxxoLike && $order->mpPaymentId !== null);
 ?>
 <div class="checkout">
   <div class="checkout__head">
@@ -71,7 +77,7 @@ $autoRefresh = in_array($order->status, [OrderStatus::InProcess], true)
       <?php if ($order->status === OrderStatus::Pending && $isOxxoLike): ?>
         <a class="btn" href="<?= $v->e($order->mpTicketUrl) ?>" target="_blank" rel="noopener">Ver mi ficha de pago</a>
       <?php elseif ($order->status->acceptsPayment()): ?>
-        <a class="btn" href="<?= $v->e($v->urls()->payStep($order)) ?>">Intentar el pago de nuevo</a>
+        <a class="btn" href="<?= $v->e($v->urls()->payStep($order)) ?>"><?= $order->mpPaymentId === null ? 'Pagar ahora' : 'Intentar el pago de nuevo' ?></a>
       <?php else: ?>
         <a class="btn" href="<?= $v->e($v->url('/')) ?>">Volver al inicio</a>
       <?php endif; ?>

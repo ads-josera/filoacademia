@@ -40,7 +40,6 @@ $courses = [
     <p class="section-lead">Cursos presenciales de afilado japonés en nuestro taller de CDMX. Grupos pequeños; piedras y cuchillos de práctica incluidos.</p>
     <figure class="academy-media">
       <?= $v->render('partials/picture', ['name' => 'academia-piedra', 'alt' => 'Cuchillo japonés sobre piedra de agua', 'width' => 1280, 'height' => 720, 'eager' => true]) ?>
-      <figcaption>Estación de afilado · piedra de agua</figcaption>
     </figure>
     <ul class="courses">
       <?php foreach ($courses as $course): ?>
@@ -49,7 +48,7 @@ $courses = [
           <h2 class="course__title"><?= $v->e($course['title']) ?></h2>
           <p><?= $v->e($course['text']) ?></p>
           <p class="course__meta"><?= $v->e($course['meta']) ?></p>
-          <a class="course__link" href="https://wa.me/<?= $v->e($business['whatsapp']) ?>?text=<?= rawurlencode($course['message']) ?>" rel="noopener"><?= $v->e($course['cta']) ?> por WhatsApp →</a>
+          <a class="course__link" href="https://wa.me/<?= $v->e($business['whatsapp']) ?>?text=<?= rawurlencode($course['message']) ?>" rel="noopener"><?= $v->e($course['cta']) ?> →</a>
         </li>
       <?php endforeach; ?>
     </ul>

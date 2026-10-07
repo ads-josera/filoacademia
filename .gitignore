@@ -20,3 +20,4 @@
 .idea/
 .vscode/
 .phpunit.cache/
+/storage/*.lock

@@ -10,6 +10,8 @@
                                                            /webhooks/mercadopago.php
                                                            (confirma aunque el cliente
                                                             cierre la ventana)
+                                                           + bin/sync-pending.php cada
+                                                             15 min como respaldo
                                                                           │
                                               pago aprobado ──► correo al cliente + correo al taller (una vez)
 ```
@@ -45,6 +47,20 @@
    Se valida la firma `x-signature` con la clave secreta y se consulta el pago en
    la API. Así un pago en OXXO que se acredita días después también se confirma
    y dispara los correos.
+
+   **Se configura SOLO en el panel de Mercado Pago** (Tus integraciones →
+   Webhooks), nunca con `notification_url` en el cobro. Motivo: según la
+   documentación, la `notification_url` tiene prioridad sobre la del panel, pero
+   la firma solo está documentada para la del panel. Si se usara
+   `notification_url` y llegara sin firma, el sitio rechazaría todos los avisos y
+   los pagos en OXXO nunca se confirmarían. **Sin el webhook del panel, un pago
+   en OXXO solo se confirma si el cliente vuelve a abrir su página de resultado.**
+
+6. **Revisión periódica** (`bin/sync-pending.php`, cron cada 15 min): busca en
+   Mercado Pago, por folio, los pagos de los pedidos sin confirmar de los
+   últimos 7 días. Es la red de seguridad para cuando el cliente paga y cierra
+   la ventana antes de volver, o cuando el webhook falla. Si encuentra un pago
+   aprobado, actualiza el pedido y envía los correos (una sola vez).
 
 ## Estados del pedido
 

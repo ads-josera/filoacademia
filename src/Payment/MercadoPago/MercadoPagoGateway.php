@@ -57,13 +57,16 @@ final class MercadoPagoGateway implements PaymentGateway
             'metadata' => ['order_id' => $order->id],
         ];
 
-        // Mercado Pago rechaza auto_return y notification_url con direcciones
-        // que no son públicas (localhost). En local se omiten; el pago se
-        // sincroniza igual al volver a la página de resultado.
+        // Mercado Pago rechaza auto_return con direcciones que no son públicas
+        // (localhost). En local se omite; el pago se sincroniza igual al volver
+        // a la página de resultado.
         if ($this->urls->isPublic()) {
             $payload['auto_return'] = 'approved';
-            $payload['notification_url'] = $this->urls->webhook();
         }
+
+        // Sin notification_url a propósito: tendría prioridad sobre el webhook
+        // configurado en el panel, y la documentación solo garantiza la firma
+        // x-signature para el del panel. Ver docs/FLUJO-DE-PAGO.md § Webhook.
 
         $response = $this->request('POST', '/checkout/preferences', $payload);
 
@@ -84,10 +87,7 @@ final class MercadoPagoGateway implements PaymentGateway
         ];
         $payload['transaction_amount'] = (float) $order->total;
         $payload['external_reference'] = $order->folio;
-
-        if ($this->urls->isPublic()) {
-            $payload['notification_url'] = $this->urls->webhook();
-        }
+        // Sin notification_url: ver createCheckout().
 
         $response = $this->request('POST', '/v1/payments', $payload, ['X-Idempotency-Key' => $idempotencyKey]);
 
@@ -101,6 +101,30 @@ final class MercadoPagoGateway implements PaymentGateway
         }
 
         return PaymentSnapshot::fromApi($this->request('GET', '/v1/payments/' . $paymentId));
+    }
+
+    /**
+     * @see https://www.mercadopago.com.mx/developers/es/docs/subscriptions/additional-content/payment-management
+     */
+    public function findPaymentsByReference(string $folio): array
+    {
+        $query = http_build_query([
+            'external_reference' => $folio,
+            'sort' => 'date_created',
+            'criteria' => 'asc',
+            'limit' => 50,
+        ]);
+        $response = $this->request('GET', '/v1/payments/search?' . $query);
+
+        $payments = [];
+        foreach (($response['results'] ?? []) as $payment) {
+            // La búsqueda es por texto: se descarta cualquier coincidencia que no sea exacta.
+            if (is_array($payment) && isset($payment['id']) && ($payment['external_reference'] ?? null) === $folio) {
+                $payments[] = PaymentSnapshot::fromApi($payment);
+            }
+        }
+
+        return $payments;
     }
 
     /** @return list<array<string, mixed>> */

@@ -166,7 +166,7 @@ $exampleExtra = $catalogModel->findExtra('punta');
         </div>
       </div>
       <div class="price-group">
-        <h3 class="price-group__title">Recepción y entrega · por pedido</h3>
+        <h3 class="price-group__title">Recepción y entrega</h3>
         <ul class="price-list">
           <?php foreach ($catalogModel->deliveryOptions() as $option): ?>
             <li>
@@ -246,18 +246,16 @@ $exampleExtra = $catalogModel->findExtra('punta');
   </div>
 </section>
 
-<section class="section section--alt" id="showroom" aria-labelledby="showroom-title">
+<section class="section" id="showroom" aria-labelledby="showroom-title">
   <div class="wrap">
     <p class="eyebrow"><span class="eyebrow__jp" lang="ja">展示</span> Showroom</p>
     <h2 class="section-title" id="showroom-title">El taller.</h2>
     <div class="gallery">
       <figure>
         <?= $v->render('partials/picture', ['name' => 'taller-rack-magnetico', 'alt' => 'Cuchillos colgados en rack magnético', 'width' => 1400, 'height' => 1120]) ?>
-        <figcaption>Rack magnético · pared del taller</figcaption>
       </figure>
       <figure>
         <?= $v->render('partials/picture', ['name' => 'taller-soporte-madera', 'alt' => 'Cuchillos en soporte de madera', 'width' => 479, 'height' => 640]) ?>
-        <figcaption>Soporte de madera · exhibición</figcaption>
       </figure>
     </div>
   </div>

@@ -87,6 +87,21 @@ final class OrderRepository
         return $this->fetchOne('SELECT * FROM orders WHERE folio = ?', [$folio]);
     }
 
+    /**
+     * Pedidos sin pago confirmado de los últimos días (para la revisión periódica).
+     *
+     * @return list<Order>
+     */
+    public function findUnsettledSince(int $days): array
+    {
+        $statement = $this->pdo->prepare(
+            "SELECT * FROM orders WHERE status IN ('pending', 'in_process', 'rejected', 'cancelled') AND created_at >= ? ORDER BY id"
+        );
+        $statement->execute([$this->now(-$days * 86400)]);
+
+        return array_map(Order::fromRow(...), $statement->fetchAll());
+    }
+
     public function countRecentByIp(string $ipHash, int $seconds): int
     {
         $statement = $this->pdo->prepare('SELECT COUNT(*) FROM orders WHERE ip_hash = ? AND created_at >= ?');

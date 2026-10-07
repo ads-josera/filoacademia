@@ -288,6 +288,32 @@ final class PaymentFlowTest extends TestCase
         $this->checkout->payWithBricks($this->orders->findById($order->id), ['token' => 't']);
     }
 
+    public function testLaRevisionPeriodicaConfirmaUnPagoSinWebhook(): void
+    {
+        $order = $this->placeOrder();
+        // El cliente tuvo un rechazo, luego pagó y cerró la ventana; no llegó webhook.
+        $this->gateway->byReference[$order->folio] = [
+            $this->payment($order, 'rejected', id: '7001'),
+            $this->payment($order, 'approved', id: '7002'),
+        ];
+
+        self::assertCount(1, $this->orders->findUnsettledSince(7));
+        $updated = $this->sync->syncByFolio($order->folio);
+
+        self::assertSame(OrderStatus::Approved, $updated->status);
+        self::assertSame('7002', $updated->mpPaymentId);
+        self::assertCount(2, $this->mailer->sent);
+        self::assertSame([], $this->orders->findUnsettledSince(7), 'Un pedido pagado ya no se revisa.');
+    }
+
+    public function testLaRevisionPeriodicaSinPagosNoCambiaNada(): void
+    {
+        $order = $this->placeOrder();
+
+        self::assertNull($this->sync->syncByFolio($order->folio));
+        self::assertSame(OrderStatus::Pending, $this->orders->findById($order->id)->status);
+    }
+
     public function testLaPreferenciaSeCreaUnaSolaVez(): void
     {
         $order = $this->placeOrder();
@@ -321,9 +347,17 @@ final class FakeGateway implements PaymentGateway
         return new PaymentSnapshot((string) (5000 + count($this->paymentCalls)), $this->nextStatus, null, $order->folio, (float) $order->total, 'MXN', 'visa', null);
     }
 
+    /** @var array<string, list<PaymentSnapshot>> */
+    public array $byReference = [];
+
     public function getPayment(string $paymentId): PaymentSnapshot
     {
         throw new \LogicException('No se usa en estas pruebas.');
+    }
+
+    public function findPaymentsByReference(string $folio): array
+    {
+        return $this->byReference[$folio] ?? [];
     }
 }
 

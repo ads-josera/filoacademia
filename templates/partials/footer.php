@@ -41,6 +41,6 @@
   </div>
   <div class="site-footer__bottom">
     <span>© <?= date('Y') ?> <?= $v->e($business['name']) ?>. Todos los derechos reservados.</span>
-    <span lang="ja">刃を研ぐ</span>
+    <span><span lang="ja">刃を研ぐ</span> · afilamos tu cuchillo</span>
   </div>
 </footer>

@@ -11,7 +11,8 @@ use FiloAcademia\Order\Order;
  *
  * Las rutas sin extensión (/academia, /pagar/pedido) las resuelve
  * public/.htaccess en el servidor y bin/dev-router.php en local. El webhook
- * usa la ruta con .php para no depender de esa reescritura.
+ * (configurado en el panel de Mercado Pago) usa la ruta con .php para no
+ * depender de esa reescritura: /webhooks/mercadopago.php.
  */
 final class Urls
 {
@@ -48,11 +49,6 @@ final class Urls
         $path = '/pagar/resultado?' . http_build_query(['folio' => $order->folio, 't' => $order->accessToken]);
 
         return $absolute ? $this->absolute($path) : $this->path($path);
-    }
-
-    public function webhook(): string
-    {
-        return $this->absolute('/webhooks/mercadopago.php');
     }
 
     /**

@@ -32,4 +32,13 @@ interface PaymentGateway
 
     /** @throws PaymentGatewayException */
     public function getPayment(string $paymentId): PaymentSnapshot;
+
+    /**
+     * Pagos asociados a un folio, del más antiguo al más reciente. Respaldo para
+     * cuando no llegó el webhook ni el cliente volvió al sitio.
+     *
+     * @return list<PaymentSnapshot>
+     * @throws PaymentGatewayException
+     */
+    public function findPaymentsByReference(string $folio): array;
 }

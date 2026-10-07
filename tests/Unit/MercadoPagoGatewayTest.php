@@ -47,20 +47,20 @@ final class MercadoPagoGatewayTest extends TestCase
         self::assertSame(3120.0, $sum);
         self::assertSame('HF-123456', $payload['external_reference']);
         self::assertSame('approved', $payload['auto_return']);
-        self::assertSame('https://filoacademia.mx/webhooks/mercadopago.php', $payload['notification_url']);
+        // El webhook es el del panel (firmado); notification_url lo anularía.
+        self::assertArrayNotHasKey('notification_url', $payload);
         self::assertStringStartsWith('https://filoacademia.mx/pagar/resultado?folio=HF-123456&t=', $payload['back_urls']['success']);
         self::assertSame('Bearer TEST-token', $transport->requests[0]['headers']['Authorization']);
         self::assertSame('pref-1', $session->preferenceId);
     }
 
-    public function testEnLocalNoSeEnvianUrlsQueMercadoPagoRechaza(): void
+    public function testEnLocalNoSeEnviaAutoReturn(): void
     {
         $transport = new RecordingTransport(['status' => 201, 'body' => '{"id":"pref-1","init_point":"https://mp/p"}']);
         $this->gateway($transport, 'http://localhost:8000')->createCheckout($this->order());
 
         $payload = json_decode($transport->requests[0]['body'], true);
         self::assertArrayNotHasKey('auto_return', $payload);
-        self::assertArrayNotHasKey('notification_url', $payload);
     }
 
     public function testElCobroLlevaMontoDelPedidoEIdempotencia(): void
@@ -71,6 +71,7 @@ final class MercadoPagoGatewayTest extends TestCase
         $payload = json_decode($transport->requests[0]['body'], true);
         self::assertSame(3120, (int) $payload['transaction_amount']);
         self::assertSame('HF-123456-1', $transport->requests[0]['headers']['X-Idempotency-Key']);
+        self::assertArrayNotHasKey('notification_url', $payload);
         self::assertSame('555', $payment->id);
     }
 
@@ -85,6 +86,19 @@ final class MercadoPagoGatewayTest extends TestCase
             self::assertSame(400, $exception->httpStatus);
             self::assertStringContainsString('invalid token', $exception->getMessage());
         }
+    }
+
+    public function testLaBusquedaPorFolioDescartaCoincidenciasInexactas(): void
+    {
+        $transport = new RecordingTransport(['status' => 200, 'body' => json_encode(['results' => [
+            ['id' => 1, 'status' => 'rejected', 'external_reference' => 'HF-123456', 'transaction_amount' => 3120, 'currency_id' => 'MXN'],
+            ['id' => 2, 'status' => 'approved', 'external_reference' => 'HF-1234567', 'transaction_amount' => 1, 'currency_id' => 'MXN'],
+            ['id' => 3, 'status' => 'approved', 'external_reference' => 'HF-123456', 'transaction_amount' => 3120, 'currency_id' => 'MXN'],
+        ]])]);
+        $payments = $this->gateway($transport)->findPaymentsByReference('HF-123456');
+
+        self::assertSame(['1', '3'], array_map(static fn ($p) => $p->id, $payments));
+        self::assertStringContainsString('/v1/payments/search?external_reference=HF-123456', $transport->requests[0]['url']);
     }
 
     public function testRechazaIdentificadoresDePagoNoNumericos(): void

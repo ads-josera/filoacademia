@@ -132,7 +132,8 @@ Comprueba: `https://TU_DOMINIO`, `https://TU_DOMINIO/academia`,
    (tipo: pagos en línea; producto: Checkout Pro y/o Checkout Bricks).
 2. **Credenciales de prueba** y **de producción** → copia *Public Key* y
    *Access Token* a `config.php`.
-3. **Webhooks → Configurar notificaciones**:
+3. **Webhooks → Configurar notificaciones** (es la ÚNICA vía de avisos: el
+   sitio no envía `notification_url`, ver docs/FLUJO-DE-PAGO.md):
    - URL (modo productivo y de prueba): `https://TU_DOMINIO/webhooks/mercadopago.php`
    - Eventos: **Pagos**
    - Guarda y copia la **clave secreta** → `mercadopago.webhook_secret`.
@@ -153,6 +154,18 @@ Con las credenciales **de prueba** en `config.php`:
 4. Repite con OXXO: pantalla con «Ver mi ficha de pago».
 5. Cambia a credenciales de **producción** y haz un pago real pequeño; reembólsalo
    desde el panel de Mercado Pago y confirma que el pedido pasa a `refunded`.
+
+## 6b. Revisión periódica de pagos (obligatoria)
+
+Respaldo del webhook: confirma pagos aunque el cliente cierre la ventana o el
+webhook falle. En **cPanel → Cron Jobs**, «Una vez cada 15 minutos»:
+
+```
+*/15 * * * * /opt/cpanel/ea-php84/root/usr/bin/php /home/TU_USUARIO/filoacademia/bin/sync-pending.php >/dev/null 2>&1
+```
+
+Para probarlo a mano: `/opt/cpanel/ea-php84/root/usr/bin/php ~/filoacademia/bin/sync-pending.php`
+→ imprime «Revisados: N · actualizados: N · errores: 0».
 
 ## 7. Actualizar a una nueva versión
 

@@ -42,6 +42,23 @@ final class PaymentSyncService
     }
 
     /**
+     * Revisa en Mercado Pago todos los pagos de un pedido (respaldo del webhook).
+     * Se aplican del más antiguo al más reciente; la regla de no-regresión
+     * evita que un intento rechazado deshaga uno aprobado.
+     *
+     * @throws PaymentGatewayException
+     */
+    public function syncByFolio(string $folio): ?Order
+    {
+        $order = null;
+        foreach ($this->gateway->findPaymentsByReference($folio) as $payment) {
+            $order = $this->apply($payment, $folio) ?? $order;
+        }
+
+        return $order;
+    }
+
+    /**
      * @return Order|null El pedido actualizado, o null si el pago no es de un pedido nuestro.
      */
     public function apply(PaymentSnapshot $payment, ?string $expectedFolio = null): ?Order
