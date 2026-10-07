@@ -1,0 +1,22 @@
+# Dependencias (se instalan con composer en cada entorno)
+/vendor/
+
+# Configuración con llaves y contraseñas: NUNCA a git
+/config/config.php
+
+# Datos y bitácoras del servidor
+/storage/*.sqlite
+/storage/*.sqlite-*
+/storage/logs/*
+!/storage/logs/.gitkeep
+/storage/mail/*
+!/storage/mail/.gitkeep
+
+# Archivo que solo existe en el servidor cuando public_html es una copia
+/public/app-root.local.php
+
+# Sistema y editores
+.DS_Store
+.idea/
+.vscode/
+.phpunit.cache/

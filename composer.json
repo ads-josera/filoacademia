@@ -1,0 +1,34 @@
+{
+    "name": "josera/filoacademia",
+    "description": "HERO · Filo Academia — sitio con cotizador y pagos con Mercado Pago.",
+    "type": "project",
+    "license": "proprietary",
+    "authors": [
+        { "name": "José Raúl Perea", "email": "ads@josera.com.mx" }
+    ],
+    "require": {
+        "php": ">=8.3",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-pdo": "*",
+        "phpmailer/phpmailer": "^6.9"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0"
+    },
+    "autoload": {
+        "psr-4": { "FiloAcademia\\": "src/" }
+    },
+    "autoload-dev": {
+        "psr-4": { "FiloAcademia\\Tests\\": "tests/" }
+    },
+    "config": {
+        "platform": { "php": "8.3.0" },
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "scripts": {
+        "test": "phpunit",
+        "migrate": "php bin/migrate.php"
+    }
+}

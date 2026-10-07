@@ -1,0 +1,2 @@
+# Este directorio nunca debe ser accesible desde la web.
+Require all denied
