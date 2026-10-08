@@ -15,6 +15,8 @@ servidor cambia el usuario, el dominio y revisa la sección 0.
 | PHP del sitio | **8.4** (`ea-php84`), lo fija cPanel en `public_html/.htaccess` |
 | PHP de la terminal | ⚠️ **8.1** (`php`): NO sirve. Usar siempre `/opt/cpanel/ea-php84/root/usr/bin/php` |
 | PHP 8.4 de CloudLinux (`/opt/alt/php84`) | ⚠️ sin `mbstring` ni `pdo_sqlite`: no usar |
+| `allow_url_fopen` | Desactivado en PHP (correcto, no cambiar). Composer se descarga con `curl` y se verifica su SHA-256; el sitio usa cURL para Mercado Pago |
+| Composer | No viene instalado: `bin/deploy.sh` descarga `composer.phar` la primera vez |
 | Buzones | `pagos@herofilo.mx` (envía los avisos), `hola@herofilo.mx` (atiende respuestas) |
 | Correo | MX, SPF, DKIM y DMARC (`p=none`) publicados |
 

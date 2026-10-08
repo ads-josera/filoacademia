@@ -78,13 +78,21 @@ COMPOSER=("$PHP_BIN" "$APP_DIR/composer.phar")
 if command -v composer >/dev/null 2>&1; then
     COMPOSER=("$PHP_BIN" "$(command -v composer)")
 elif [ ! -f "$APP_DIR/composer.phar" ]; then
-    echo "  Instalando composer.phar (con verificación de firma)"
+    # Descarga directa con curl + suma SHA-256 oficial. No se usa el instalador
+    # de Composer porque necesita allow_url_fopen, que en este hosting está
+    # desactivado (y conviene que lo siga estando).
+    echo "  Descargando composer.phar (con verificación SHA-256)"
     if [ "$DRY_RUN" -eq 0 ]; then
-        EXPECTED="$(curl -fsSL https://composer.github.io/installer.sig)"
-        "$PHP_BIN" -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-        ACTUAL="$("$PHP_BIN" -r "echo hash_file('sha384', 'composer-setup.php');")"
-        [ "$EXPECTED" = "$ACTUAL" ] || { rm -f composer-setup.php; fail "Firma del instalador de Composer inválida."; }
-        "$PHP_BIN" composer-setup.php --quiet && rm -f composer-setup.php
+        base="https://getcomposer.org/download/latest-stable"
+        curl -fsSL -o composer.phar.tmp "$base/composer.phar" || fail "No se pudo descargar composer.phar."
+        expected="$(curl -fsSL "$base/composer.phar.sha256sum" | awk '{print $1}')"
+        actual="$("$PHP_BIN" -r 'echo hash_file("sha256", "composer.phar.tmp");')"
+        if [ -z "$expected" ] || [ "$expected" != "$actual" ]; then
+            rm -f composer.phar.tmp
+            fail "La suma SHA-256 de composer.phar no coincide con la oficial."
+        fi
+        mv composer.phar.tmp composer.phar
+        echo "  composer.phar verificado ($actual)"
     fi
 fi
 run "${COMPOSER[@]}" install --no-dev --optimize-autoloader --no-interaction
