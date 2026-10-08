@@ -8,7 +8,9 @@ ErrorDocument 404 /404.php
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Forzar HTTPS (Mercado Pago exige URLs seguras).
+    # Forzar HTTPS (Mercado Pago exige URLs seguras). /.well-known queda fuera:
+    # ahí valida cPanel la renovación automática del certificado SSL.
+    RewriteCond %{REQUEST_URI} !^/\.well-known/
     RewriteCond %{HTTPS} !=on
     RewriteCond %{HTTP:X-Forwarded-Proto} !=https
     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]

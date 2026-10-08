@@ -21,3 +21,4 @@
 .vscode/
 .phpunit.cache/
 /storage/*.lock
+/storage/backups/

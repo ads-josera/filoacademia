@@ -9,7 +9,7 @@ de precios, el cotizador y el cobro. Reglas:
 - Para retirar una opción de entrega: `'available' => false`.
 - Para permitir seguro en otra entrega: `'insurable' => true`.
 
-Sube el cambio con git y aplica el Bloque 7 de [DESPLIEGUE.md](DESPLIEGUE.md).
+Sube el cambio con git y en el servidor ejecuta `bash ~/filoacademia/bin/deploy.sh` (Bloque 8 de [DESPLIEGUE.md](DESPLIEGUE.md)).
 
 ## Cambiar teléfono, dirección, horario o correo
 
@@ -54,11 +54,11 @@ grep '"ERROR"' ~/filoacademia/storage/logs/app-*.log | tail
 | Síntoma | Causa probable | Qué hacer |
 |---|---|---|
 | «No pudimos conectar con Mercado Pago» en el paso 2 | `access_token` vacío o inválido | Revisa `config.php`; el detalle exacto está en `app-*.log` |
-| Pagos aprobados pero el pedido sigue «pendiente» | Webhook sin configurar o clave secreta incorrecta, y cron de revisión sin configurar | `webhook_events` mostrará `firma inválida`; vuelve a copiar la clave (§5). Corre `php bin/sync-pending.php` para ponerte al día y revisa el cron (§6b) |
+| Pagos aprobados pero el pedido sigue «pendiente» | Webhook sin configurar o clave secreta incorrecta, y cron de revisión sin configurar | `webhook_events` mostrará `firma inválida`; vuelve a copiar la clave (§6). Corre `/opt/cpanel/ea-php84/root/usr/bin/php bin/sync-pending.php` para ponerte al día y revisa el cron (§5) |
 | No llegan correos | Datos SMTP o SPF/DKIM | Busca «No se pudo enviar el aviso» en el log; revisa *Email Deliverability* |
 | Llega el correo del cliente pero no el del taller | `admin_recipients` vacío | Agrega al menos una dirección |
 | «Recibimos muchos pedidos desde tu conexión» | Límite de 8 pedidos/10 min por IP | Espera 10 minutos; se ajusta en `CheckoutService::MAX_ORDERS_PER_IP`. Si el sitio se pone detrás de Cloudflare u otro proxy, todos comparten IP: hay que leer la IP real del proxy en `App::clientIp()` |
-| Página en blanco | Error de PHP | `storage/logs/php-errors.log` |
+| Página en blanco o error 500 | Error de PHP, o el sitio cayó a PHP 8.1 (se perdió el bloque de cPanel del `.htaccess`) | `storage/logs/php-errors.log` y `~/logs/php.error.log`. Si es la versión: cPanel → MultiPHP Manager → PHP 8.4 y vuelve a correr `bin/deploy.sh` |
 | El cliente pagó dos veces | Pagó con OXXO y luego con tarjeta | El pedido queda con el primer pago aprobado; reembolsa el otro desde Mercado Pago |
 
 ## Probar y revisar los correos

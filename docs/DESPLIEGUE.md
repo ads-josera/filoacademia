@@ -1,37 +1,47 @@
 # Manual de despliegue (cPanel · PHP 8.4)
 
-Cada bloque se copia y pega completo en **cPanel → Terminal** (o por SSH).
-Antes de empezar, reemplaza en TODOS los bloques:
+Cada bloque se copia y pega **completo** en la terminal del servidor (SSH o
+cPanel → Terminal). Están escritos para el servidor de **herofilo.mx**; para otro
+servidor cambia el usuario, el dominio y revisa la sección 0.
 
-| Marcador | Ejemplo |
+## 0. El servidor (verificado el 2026-10-07)
+
+| Qué | Valor |
 |---|---|
-| `TU_DOMINIO` | `herofilo.mx` |
-| `TU_USUARIO` | el usuario de cPanel (se ve con `whoami`) |
+| Dominio | `herofilo.mx` (DNS `dizinc.com`, IP 107.161.187.186) |
+| SSL | Let's Encrypt (AutoSSL), renovación automática |
+| Usuario / home | `herofilo` / `/home/herofilo` |
+| Sistema | cPanel sobre **CloudLinux** (CageFS, Imunify360) |
+| PHP del sitio | **8.4** (`ea-php84`), lo fija cPanel en `public_html/.htaccess` |
+| PHP de la terminal | ⚠️ **8.1** (`php`): NO sirve. Usar siempre `/opt/cpanel/ea-php84/root/usr/bin/php` |
+| PHP 8.4 de CloudLinux (`/opt/alt/php84`) | ⚠️ sin `mbstring` ni `pdo_sqlite`: no usar |
+| Buzones | `pagos@herofilo.mx` (envía los avisos), `hola@herofilo.mx` (atiende respuestas) |
+| Correo | MX, SPF, DKIM y DMARC (`p=none`) publicados |
 
-La aplicación vive en `~/filoacademia` y **solo** su carpeta `public/` se
-publica en la web. Configuración, base de datos y bitácoras quedan fuera de
-`public_html`.
+**Cómo queda instalado:**
+
+```
+/home/herofilo/
+├── filoacademia/        ← la aplicación (git): código, config.php, base de datos, bitácoras
+└── public_html/         ← copia de filoacademia/public/ que hace bin/deploy.sh
+    ├── .htaccess        ← bloques de cPanel (PHP 8.4) + reglas del sitio
+    ├── php.ini, .user.ini, .well-known/, cgi-bin/   ← de cPanel: el script no los toca
+    └── app-root.local.php  ← le dice al sitio dónde está la aplicación
+```
+
+`public_html` **no se reemplaza** por un enlace a `public/`: perdería el bloque
+con el que cPanel fija PHP 8.4 (el sitio caería a 8.1) y la carpeta
+`.well-known` donde se renueva el SSL. `bin/deploy.sh` copia los archivos y
+reconstruye el `.htaccess` conservando lo de cPanel.
 
 ---
 
-## 0. Preparación en el panel (una sola vez, sin terminal)
-
-1. **MultiPHP Manager** → selecciona el dominio → **PHP 8.4** (`ea-php84`).
-2. **Select PHP Version / MultiPHP INI** → confirma extensiones: `pdo_sqlite`,
-   `curl`, `mbstring`, `openssl`.
-3. **SSL/TLS Status** → el dominio con certificado válido (AutoSSL). Mercado Pago
-   exige HTTPS.
-4. **Email Accounts** → crea `pagos@TU_DOMINIO` con contraseña fuerte (desde ahí
-   salen los correos).
-5. **Email Deliverability** → que SPF y DKIM estén en verde (si no, los correos
-   caen en spam).
-
-## 1. Llave de despliegue para GitHub
+## 1. Llave para descargar el código de GitHub (una sola vez)
 
 ```bash
-# — Bloque 1: crear llave SSH del servidor (solo lectura del repositorio) —
+# — Bloque 1: llave de solo lectura para el repositorio —
 mkdir -p ~/.ssh && chmod 700 ~/.ssh
-ssh-keygen -t ed25519 -C "deploy@TU_DOMINIO" -f ~/.ssh/filoacademia_deploy -N ""
+ssh-keygen -t ed25519 -C "deploy@herofilo.mx" -f ~/.ssh/filoacademia_deploy -N ""
 cat >> ~/.ssh/config <<'EOF'
 Host github-filoacademia
     HostName github.com
@@ -40,164 +50,127 @@ Host github-filoacademia
     IdentitiesOnly yes
 EOF
 chmod 600 ~/.ssh/config
-echo "=== Copia esta llave pública en GitHub ==="
+echo; echo "=== Copia esta llave en GitHub → ads-josera/filoacademia → Settings → Deploy keys ==="
 cat ~/.ssh/filoacademia_deploy.pub
 ```
 
-En GitHub: **ads-josera/filoacademia → Settings → Deploy keys → Add deploy key**,
-pega la llave, **sin** marcar «Allow write access».
+En GitHub: **Settings → Deploy keys → Add deploy key**, pega la llave, título
+`herofilo.mx`, **sin** «Allow write access».
 
-## 2. Instalación
+## 2. Descargar el código (una sola vez)
 
 ```bash
-# — Bloque 2: clonar, instalar dependencias y preparar base de datos —
-PHP=/opt/cpanel/ea-php84/root/usr/bin/php
+# — Bloque 2: clonar y preparar la configuración —
 cd ~ && git clone git@github-filoacademia:ads-josera/filoacademia.git filoacademia
 cd ~/filoacademia
-if command -v composer >/dev/null; then COMPOSER="composer"; else
-  $PHP -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-  $PHP composer-setup.php --quiet && rm composer-setup.php
-  COMPOSER="$PHP composer.phar"
-fi
-$COMPOSER install --no-dev --optimize-autoloader --no-interaction
-cp -n config/config.example.php config/config.php
-chmod 600 config/config.php
-chmod 755 storage storage/logs storage/mail
-$PHP -v | head -1
+cp -n config/config.example.php config/config.php && chmod 600 config/config.php
+ls -la
 ```
 
-## 3. Configuración
+## 3. Configuración de producción
 
 ```bash
 nano ~/filoacademia/config/config.php
 ```
 
-Valores de producción:
-
 | Clave | Valor |
 |---|---|
 | `app.env` | `'production'` |
-| `app.url` | `'https://TU_DOMINIO'` (sin barra final) |
+| `app.url` | `'https://herofilo.mx'` |
 | `mercadopago.checkout_mode` | `'pro'` o `'bricks'` |
-| `mercadopago.public_key` / `access_token` | Credenciales de **producción** (o de prueba para el ensayo, ver §6) |
-| `mercadopago.webhook_secret` | Se obtiene en el §5 |
+| `mercadopago.public_key` / `access_token` | De **prueba** durante el ensayo; de **producción** al abrir |
+| `mercadopago.webhook_secret` | Se obtiene en el paso 6 |
 | `mail.transport` | `'smtp'` |
-| `mail.host` | `'mail.TU_DOMINIO'` |
-| `mail.port` / `encryption` | `465` / `'ssl'` |
-| `mail.username` / `from_email` | `'pagos@TU_DOMINIO'` |
-| `mail.password` | la del buzón |
+| `mail.host` / `port` / `encryption` | `'mail.herofilo.mx'` / `465` / `'ssl'` |
+| `mail.username` / `from_email` | `'pagos@herofilo.mx'` |
+| `mail.password` | la del buzón `pagos@` |
 | `mail.admin_recipients` | `['hola@herofilo.mx']` (y los que hagan falta) |
 
-Guarda con `Ctrl+O`, `Enter`, `Ctrl+X`. Luego:
+Guardar: `Ctrl+O`, `Enter`, `Ctrl+X`.
+
+## 4. Primer despliegue
 
 ```bash
-# — Bloque 3: crear tablas y verificar —
-cd ~/filoacademia && /opt/cpanel/ea-php84/root/usr/bin/php bin/migrate.php
+# — Bloque 4: simulación (no cambia nada) —
+cd ~/filoacademia && bash bin/deploy.sh --dry-run --no-pull
 ```
 
-## 4. Publicar `public/` como raíz del sitio
-
-Elige **una** opción.
-
-**A. (Recomendada) Raíz del dominio apuntando a la app.** En **Domains** →
-*Manage* el dominio → *Document Root* = `filoacademia/public`. Si tu versión de
-cPanel lo permite, no hace falta nada más.
-
-**B. Enlace simbólico** (si no se puede cambiar la raíz del dominio principal):
+Revisa la salida: debe mostrar los bloques «cPanel-generated» con `ea-php84`
+que se conservarán y la lista de archivos que se copiarán. Si todo se ve bien:
 
 ```bash
-# — Bloque 4B: public_html → filoacademia/public (respalda lo anterior) —
-cd ~ && mv public_html public_html.respaldo-$(date +%Y%m%d)
-ln -s ~/filoacademia/public ~/public_html
-ls -la ~ | grep public_html
+cd ~/filoacademia && bash bin/deploy.sh --no-pull
 ```
 
-**C. Copia** (solo si el hosting no sigue enlaces simbólicos):
+Al final comprueba solo que `/`, `/academia` y `/pagar/` respondan 200 y que
+`/app-root.local.php` responda 403.
 
-```bash
-# — Bloque 4C: copiar public/ y decirle dónde está la app —
-cd ~ && mv public_html public_html.respaldo-$(date +%Y%m%d) && mkdir public_html
-cp -a ~/filoacademia/public/. ~/public_html/
-echo "<?php return '/home/TU_USUARIO/filoacademia';" > ~/public_html/app-root.local.php
-```
-Con la opción C, **cada actualización** debe repetir el `cp -a` (ver §7).
-
-Comprueba: `https://TU_DOMINIO`, `https://TU_DOMINIO/academia`,
-`https://TU_DOMINIO/pagar/`. Y que `https://TU_DOMINIO/_boot.php` responda 403.
-(`config/` y `storage/` no están dentro de `public/`, así que no tienen URL.)
-
-## 5. Mercado Pago
-
-1. <https://www.mercadopago.com.mx/developers/panel> → **Crear aplicación**
-   (tipo: pagos en línea; producto: Checkout Pro y/o Checkout Bricks).
-2. **Credenciales de prueba** y **de producción** → copia *Public Key* y
-   *Access Token* a `config.php`.
-3. **Webhooks → Configurar notificaciones** (es la ÚNICA vía de avisos: el
-   sitio no envía `notification_url`, ver docs/FLUJO-DE-PAGO.md):
-   - URL (modo productivo y de prueba): `https://TU_DOMINIO/webhooks/mercadopago.php`
-   - Eventos: **Pagos**
-   - Guarda y copia la **clave secreta** → `mercadopago.webhook_secret`.
-4. Usa el botón **Simular** del panel de webhooks: en
-   `storage/logs/app-AAAA-MM.log` y en la tabla `webhook_events` debe aparecer
-   el aviso con firma válida y el resultado «pago inexistente en Mercado Pago»
-   (el pago simulado no existe; se responde 200 para que no reintente).
-
-## 6. Ensayo con credenciales de prueba (antes de cobrar de verdad)
-
-Con las credenciales **de prueba** en `config.php`:
-
-1. Crea un pedido real en el sitio y paga con una
-   [tarjeta de prueba](https://www.mercadopago.com.mx/developers/es/docs/checkout-pro/integration-test/test-cards)
-   (titular `APRO` = aprobado, `OTHE` = rechazado).
-2. Verifica: pantalla «Pago recibido», correo al cliente, correo al taller.
-3. Repite con `OTHE`: pantalla «El pago no se completó» y botón de reintento.
-4. Repite con OXXO: pantalla con «Ver mi ficha de pago».
-5. Cambia a credenciales de **producción** y haz un pago real pequeño; reembólsalo
-   desde el panel de Mercado Pago y confirma que el pedido pasa a `refunded`.
-
-## 6b. Revisión periódica de pagos (obligatoria)
+## 5. Revisión periódica de pagos (cron, obligatoria)
 
 Respaldo del webhook: confirma pagos aunque el cliente cierre la ventana o el
-webhook falle. En **cPanel → Cron Jobs**, «Una vez cada 15 minutos»:
+aviso de Mercado Pago falle. **cPanel → Cron Jobs**, «Una vez cada 15 minutos»:
 
 ```
-*/15 * * * * /opt/cpanel/ea-php84/root/usr/bin/php /home/TU_USUARIO/filoacademia/bin/sync-pending.php >/dev/null 2>&1
+*/15 * * * * /opt/cpanel/ea-php84/root/usr/bin/php /home/herofilo/filoacademia/bin/sync-pending.php >/dev/null 2>&1
 ```
 
-Para probarlo a mano: `/opt/cpanel/ea-php84/root/usr/bin/php ~/filoacademia/bin/sync-pending.php`
-→ imprime «Revisados: N · actualizados: N · errores: 0».
+Probarlo a mano: `/opt/cpanel/ea-php84/root/usr/bin/php ~/filoacademia/bin/sync-pending.php`
+→ «Revisados: N · actualizados: N · errores: 0».
 
-## 7. Actualizar a una nueva versión
+## 6. Webhook de Mercado Pago
+
+Es la **única** vía de avisos (el sitio no envía `notification_url`, ver
+docs/FLUJO-DE-PAGO.md). En la aplicación del cliente en
+<https://www.mercadopago.com.mx/developers/panel/app>:
+
+1. **Webhooks → Configurar notificaciones**.
+2. URL (modo de prueba y productivo): `https://herofilo.mx/webhooks/mercadopago.php`
+3. Evento: **Pagos**. Guardar.
+4. Copiar la **clave secreta** a `mercadopago.webhook_secret` en `config.php`.
+5. Botón **Simular**: en la tabla `webhook_events` debe quedar el aviso con
+   firma válida y «pago inexistente en Mercado Pago» (el pago simulado no existe).
 
 ```bash
-# — Bloque 7: actualizar —
-PHP=/opt/cpanel/ea-php84/root/usr/bin/php
-cd ~/filoacademia && cp storage/database.sqlite storage/respaldo-$(date +%Y%m%d-%H%M).sqlite 2>/dev/null
-git pull --ff-only
-if command -v composer >/dev/null; then composer install --no-dev --optimize-autoloader --no-interaction; else $PHP composer.phar install --no-dev --optimize-autoloader --no-interaction; fi
-$PHP bin/migrate.php
-# Solo si usas la opción C del §4:
-# cp -a ~/filoacademia/public/. ~/public_html/
+sqlite3 ~/filoacademia/storage/database.sqlite "SELECT created_at, signature_valid, result FROM webhook_events ORDER BY id DESC LIMIT 5;"
 ```
 
-## 8. Respaldo
+## 7. Ensayo con credenciales de prueba (antes de cobrar de verdad)
 
-La única información que no está en git es `config/config.php` y
-`storage/database.sqlite`. Agrega en **cPanel → Cron Jobs** (diario, 3:00):
+1. Pedido real en el sitio, pagado con el **comprador de prueba** y una
+   [tarjeta de prueba](https://www.mercadopago.com.mx/developers/es/docs/checkout-pro/integration-test/test-cards)
+   (titular `APRO` = aprobado, `OTHE` = rechazado).
+2. Verificar: pantalla «Pago recibido», correo al cliente, correo a `hola@`.
+3. Repetir con `OTHE`: «El pago no se completó» y botón de reintento.
+4. Repetir con OXXO: «Ver mi ficha de pago».
+5. Cambiar a credenciales de **producción**, hacer un pago real pequeño y
+   reembolsarlo desde el panel de Mercado Pago (el pedido pasa a `refunded`).
 
-```
-0 3 * * * cp ~/filoacademia/storage/database.sqlite ~/filoacademia/storage/respaldo-$(date +\%u).sqlite
-```
-
-(guarda 7 copias rotativas, una por día de la semana). Los respaldos de cPanel
-también incluyen la carpeta completa.
-
-## 9. Volver atrás
+## 8. Actualizar a una nueva versión
 
 ```bash
-# — Bloque 9: regresar a la versión anterior —
-cd ~/filoacademia && git log --oneline -5      # identifica la versión buena
-git checkout <HASH_BUENO>
-/opt/cpanel/ea-php84/root/usr/bin/php bin/migrate.php
+# — Bloque 8: actualizar —
+cd ~/filoacademia && mkdir -p storage/backups && cp storage/database.sqlite storage/backups/db-$(date +%Y%m%d-%H%M).sqlite 2>/dev/null
+bash bin/deploy.sh
 ```
-Para volver a la última: `git checkout main && git pull --ff-only`.
+
+## 9. Respaldo diario de la base de datos
+
+**cPanel → Cron Jobs**, diario a las 3:00 (guarda 7 copias rotativas):
+
+```
+0 3 * * * mkdir -p /home/herofilo/filoacademia/storage/backups && cp /home/herofilo/filoacademia/storage/database.sqlite /home/herofilo/filoacademia/storage/backups/db-dia-$(date +\%u).sqlite
+```
+
+Lo único que no está en git es `config/config.php` y `storage/`. Los respaldos
+de cPanel incluyen la carpeta completa.
+
+## 10. Volver atrás
+
+```bash
+# — Bloque 10: regresar a una versión anterior —
+cd ~/filoacademia && git log --oneline -5          # identifica la versión buena
+git checkout <HASH_BUENO> && bash bin/deploy.sh --no-pull
+```
+
+Para volver a la última: `git checkout main && bash bin/deploy.sh`.
+El `.htaccess` anterior queda en `storage/backups/htaccess-*` por si hiciera falta.
