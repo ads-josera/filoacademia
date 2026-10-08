@@ -104,12 +104,25 @@ fi
 say "Publicando archivos en $PUBLIC_HTML"
 PROTECT=(--exclude '.htaccess' --exclude '.well-known/' --exclude 'cgi-bin/' --exclude 'php.ini' --exclude '.user.ini' --exclude 'app-root.local.php' --exclude 'error_log')
 if command -v rsync >/dev/null 2>&1; then
-    RSYNC_FLAGS=(-a --delete --itemize-changes "${PROTECT[@]}")
+    # -rlt (no -a): no se copian permisos, dueño ni grupo, así public_html
+    # conserva los de cPanel (750, grupo nobody). Los permisos de lo copiado
+    # se fijan después (no se usa --chmod: rsync antiguos no lo tienen).
+    RSYNC_FLAGS=(-rlt --delete --itemize-changes "${PROTECT[@]}")
     [ "$DRY_RUN" -eq 1 ] && RSYNC_FLAGS+=(--dry-run)
     rsync "${RSYNC_FLAGS[@]}" "$APP_DIR/public/" "$PUBLIC_HTML/" | sed 's/^/  /'
 else
     echo "  (sin rsync: copia simple, no elimina archivos viejos)"
-    run cp -a "$APP_DIR/public/." "$PUBLIC_HTML/"
+    run cp -R "$APP_DIR/public/." "$PUBLIC_HTML/"
+fi
+
+# Permisos estándar de hosting en lo publicado: carpetas 755, archivos 644 (sin
+# escritura para el grupo). No se toca public_html en sí ni lo de cPanel.
+if [ "$DRY_RUN" -eq 1 ]; then
+    echo "  (simulación) permisos 755/644 en lo publicado"
+else
+    find "$PUBLIC_HTML" -mindepth 1 \( -path "$PUBLIC_HTML/.well-known" -o -path "$PUBLIC_HTML/cgi-bin" \) -prune \
+        -o -type d -exec chmod 755 {} + \
+        -o -type f ! -name 'php.ini' ! -name '.user.ini' -exec chmod 644 {} +
 fi
 
 # Dónde está la aplicación (public_html es una copia, no está dentro del proyecto).
