@@ -163,7 +163,7 @@ pedido local y míralo en Mailpit (<https://filoacademia.ddev.site:8026>).
 
 ```bash
 git add -A
-git commit -m "Precios: afilado a $280"       # describe qué cambió
+git commit -m 'Precios: afilado a $280'       # describe qué cambió (comillas simples: con dobles, $2 se pierde)
 git push
 ```
 
