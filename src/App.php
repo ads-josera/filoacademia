@@ -91,7 +91,7 @@ final class App
     {
         return $this->shared(PaymentGateway::class, fn (): PaymentGateway => new MercadoPagoGateway(
             new CurlTransport(),
-            $this->config->string('mercadopago.access_token'),
+            $this->config->mercadoPagoCredential('access_token'),
             $this->urls(),
             mb_substr($this->config->string('mercadopago.statement_descriptor'), 0, 22),
             $this->maxInstallments(),

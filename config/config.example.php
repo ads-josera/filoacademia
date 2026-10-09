@@ -32,8 +32,20 @@ return [
         // pro    → el cliente paga en la ventana segura de Mercado Pago.
         // bricks → el formulario de pago aparece dentro de nuestra página.
         'checkout_mode' => 'pro',
-        'public_key' => '',
-        'access_token' => '',
+
+        // Qué juego de llaves usa el sitio: test (pagos ficticios) | production
+        // (cobra de verdad). Los dos juegos pueden estar guardados a la vez:
+        // pasar a producción es cambiar esta palabra.
+        'mode' => 'test',
+        'test' => [
+            'public_key' => '',
+            'access_token' => '',
+        ],
+        'production' => [
+            'public_key' => '',
+            'access_token' => '',
+        ],
+
         // Panel de Mercado Pago → Tus integraciones → Webhooks → «Clave secreta».
         // Sin ella, el webhook rechaza todas las notificaciones.
         'webhook_secret' => '',

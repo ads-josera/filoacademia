@@ -89,7 +89,7 @@ final class CheckoutController
             'noindex' => true,
             'order' => $order,
             'mode' => $mode,
-            'publicKey' => $this->app->config->string('mercadopago.public_key'),
+            'publicKey' => $this->app->config->mercadoPagoCredential('public_key'),
             'maxInstallments' => max(1, (int) $this->app->config->get('mercadopago.max_installments', 1)),
             'csrf' => Session::csrfToken(),
             'gatewayError' => $gatewayError,
