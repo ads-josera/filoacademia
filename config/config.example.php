@@ -73,6 +73,6 @@ return [
         'from_email' => 'pagos@tudominio.mx',
         'from_name' => 'HERO · Filo Academia',
         // Quién recibe el aviso de cada pago. Se admite más de uno.
-        'admin_recipients' => ['hola@herofilo.mx'],
+        'admin_recipients' => ['pedidos@herofilo.mx'],
     ],
 ];

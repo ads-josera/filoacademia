@@ -17,7 +17,7 @@ servidor cambia el usuario, el dominio y revisa la sección 0.
 | PHP 8.4 de CloudLinux (`/opt/alt/php84`) | ⚠️ sin `mbstring` ni `pdo_sqlite`: no usar |
 | `allow_url_fopen` | Desactivado en PHP (correcto, no cambiar). Composer se descarga con `curl` y se verifica su SHA-256; el sitio usa cURL para Mercado Pago |
 | Composer | No viene instalado: `bin/deploy.sh` descarga `composer.phar` la primera vez |
-| Buzones | `pagos@herofilo.mx` (envía los avisos), `hola@herofilo.mx` (atiende respuestas) |
+| Buzones | `pagos@herofilo.mx` (envía los avisos), `pedidos@herofilo.mx` (recibe el aviso de cada compra), `hola@herofilo.mx` (atiende las respuestas de los clientes) |
 | Correo | MX, SPF, DKIM y DMARC (`p=none`) publicados |
 
 **Cómo queda instalado:**
@@ -86,7 +86,7 @@ nano ~/filoacademia/config/config.php
 | `mail.host` / `port` / `encryption` | `'mail.herofilo.mx'` / `465` / `'ssl'` |
 | `mail.username` / `from_email` | `'pagos@herofilo.mx'` |
 | `mail.password` | la del buzón `pagos@` |
-| `mail.admin_recipients` | `['hola@herofilo.mx']` (y los que hagan falta) |
+| `mail.admin_recipients` | `['pedidos@herofilo.mx']` (y los que hagan falta) |
 
 Guardar: `Ctrl+O`, `Enter`, `Ctrl+X`.
 
@@ -155,7 +155,7 @@ sqlite3 ~/filoacademia/storage/database.sqlite "SELECT created_at, signature_val
 1. Pedido real en el sitio, pagado con el **comprador de prueba** y una
    [tarjeta de prueba](https://www.mercadopago.com.mx/developers/es/docs/checkout-pro/integration-test/test-cards)
    (titular `APRO` = aprobado, `OTHE` = rechazado).
-2. Verificar: pantalla «Pago recibido», correo al cliente, correo a `hola@`.
+2. Verificar: pantalla «Pago recibido», correo al cliente, correo a `pedidos@`.
 3. Repetir con `OTHE`: «El pago no se completó» y botón de reintento.
 4. Repetir con OXXO: «Ver mi ficha de pago».
 5. Cambiar a credenciales de **producción**, hacer un pago real pequeño y
