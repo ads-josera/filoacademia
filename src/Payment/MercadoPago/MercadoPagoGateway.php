@@ -40,10 +40,11 @@ final class MercadoPagoGateway implements PaymentGateway
 
         $payload = [
             'items' => $this->items($order),
-            'payer' => [
-                'name' => $order->customerName,
-                'email' => $order->customerEmail,
-            ],
+            // Sin 'payer' a propósito: Mercado Pago identifica al pagador en su
+            // propia ventana. Enviar el correo del pedido lo amarra a un usuario:
+            // con credenciales de prueba y un correo real bloquea el pago («una de
+            // las partes es de prueba»), y en producción choca si el cliente paga
+            // con una cuenta de otro correo. El correo para avisos ya está en el pedido.
             'external_reference' => $order->folio,
             'statement_descriptor' => $this->statementDescriptor,
             'back_urls' => [

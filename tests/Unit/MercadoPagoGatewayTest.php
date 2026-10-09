@@ -46,6 +46,8 @@ final class MercadoPagoGatewayTest extends TestCase
 
         self::assertSame(3120.0, $sum);
         self::assertSame('HF-123456', $payload['external_reference']);
+        // Sin datos del pagador: en pruebas, un correo real bloquea el pago.
+        self::assertArrayNotHasKey('payer', $payload);
         self::assertSame('approved', $payload['auto_return']);
         // El webhook es el del panel (firmado); notification_url lo anularía.
         self::assertArrayNotHasKey('notification_url', $payload);
