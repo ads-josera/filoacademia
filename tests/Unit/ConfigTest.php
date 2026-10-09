@@ -51,6 +51,13 @@ final class ConfigTest extends TestCase
         self::assertSame('', $config->mercadoPagoCredential('access_token'));
     }
 
+    public function testIgnoraEspaciosAlPegarLasLlaves(): void
+    {
+        $config = $this->config(['mode' => 'test', 'test' => ['access_token' => "  APP_USR-123\n"]]);
+
+        self::assertSame('APP_USR-123', $config->mercadoPagoCredential('access_token'));
+    }
+
     public function testCompatibleConLasLlavesSueltas(): void
     {
         // Configuración anterior (la del servidor antes de este cambio).

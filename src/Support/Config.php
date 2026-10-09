@@ -45,10 +45,12 @@ final class Config
     public function mercadoPagoCredential(string $key): string
     {
         $mode = $this->mercadoPagoMode();
-
-        return is_array($this->get("mercadopago.{$mode}"))
+        $value = is_array($this->get("mercadopago.{$mode}"))
             ? $this->string("mercadopago.{$mode}.{$key}")
             : $this->string("mercadopago.{$key}");
+
+        // Al pegar con nano es fácil arrastrar un espacio o salto de línea.
+        return trim($value);
     }
 
     /** @return 'test'|'production' Cualquier valor distinto de «production» es «test». */
