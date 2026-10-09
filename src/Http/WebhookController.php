@@ -57,6 +57,16 @@ final class WebhookController
                 $parts['ts'] ?? '-',
             );
             $orders->logWebhook($requestId, $type, $dataId, false, $detail);
+            // Muestra cruda del último aviso rechazado para bin/webhook-diagnose.php.
+            // No contiene secretos (la firma es un resultado, no la clave).
+            @file_put_contents($this->app->rootDir . '/storage/logs/webhook-last-invalid.json', json_encode([
+                'received_at' => date('c'),
+                'query_string' => (string) ($_SERVER['QUERY_STRING'] ?? ''),
+                'get' => $_GET,
+                'x_signature' => $signature,
+                'x_request_id' => $requestId,
+                'body' => (string) file_get_contents('php://input'),
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
             $this->app->logger()->warning('Webhook con firma inválida.', [
                 'type' => $type,
                 'data_id' => $dataId,
