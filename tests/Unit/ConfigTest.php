@@ -58,6 +58,19 @@ final class ConfigTest extends TestCase
         self::assertSame('APP_USR-123', $config->mercadoPagoCredential('access_token'));
     }
 
+    public function testClavesDelWebhookDeAmbasAplicaciones(): void
+    {
+        $config = $this->config([
+            'mode' => 'production',
+            'webhook_secret' => ' CLIENTE ',
+            'test' => ['webhook_secret' => 'ESPEJO'],
+            'production' => [],
+        ]);
+
+        self::assertSame(['CLIENTE', 'ESPEJO'], $config->mercadoPagoWebhookSecrets());
+        self::assertSame([], $this->config([])->mercadoPagoWebhookSecrets());
+    }
+
     public function testCompatibleConLasLlavesSueltas(): void
     {
         // Configuración anterior (la del servidor antes de este cambio).

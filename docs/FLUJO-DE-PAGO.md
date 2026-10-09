@@ -53,7 +53,11 @@
    documentación, la `notification_url` tiene prioridad sobre la del panel, pero
    la firma solo está documentada para la del panel. Si se usara
    `notification_url` y llegara sin firma, el sitio rechazaría todos los avisos y
-   los pagos en OXXO nunca se confirmarían. **Sin el webhook del panel, un pago
+   los pagos en OXXO nunca se confirmarían.
+
+   Se aceptan **dos claves**: la de la aplicación del cliente (pagos reales) y
+   la de la aplicación espejo del vendedor de prueba (pagos de prueba), que
+   Mercado Pago usa para firmar los avisos de prueba. Ver DESPLIEGUE.md §6. **Sin el webhook del panel, un pago
    en OXXO solo se confirma si el cliente vuelve a abrir su página de resultado.**
 
 6. **Revisión periódica** (`bin/sync-pending.php`, cron cada 15 min): busca en

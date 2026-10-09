@@ -136,6 +136,20 @@ docs/FLUJO-DE-PAGO.md). En la aplicación del cliente en
 sqlite3 ~/filoacademia/storage/database.sqlite "SELECT created_at, signature_valid, result FROM webhook_events ORDER BY id DESC LIMIT 5;"
 ```
 
+> **Importante — pagos de prueba (comprobado el 2026-10-09):** con las
+> credenciales de prueba nuevas (`APP_USR-…`), los pagos de prueba los procesa
+> una **aplicación espejo del vendedor de prueba** (`TestApp-…`, con otro
+> número de aplicación), que firma sus avisos con **su propia clave**. La
+> «Simular notificación» del panel del cliente pasa, pero los avisos reales de
+> prueba llegan con «firma inválida».
+>
+> Solución: entrar al panel de desarrolladores **con el vendedor de prueba**
+> (usuario y contraseña en *Cuentas de prueba*), abrir `TestApp-…` → Webhooks,
+> dejar solo «Pagos (legacy)», y copiar su clave secreta a
+> `mercadopago.test.webhook_secret`. El sitio acepta las dos claves.
+> Para diagnosticar: `php bin/webhook-diagnose.php` (prueba el último aviso
+> rechazado contra las claves configuradas, sin mostrarlas).
+
 ## 7. Ensayo con credenciales de prueba (antes de cobrar de verdad)
 
 1. Pedido real en el sitio, pagado con el **comprador de prueba** y una

@@ -60,6 +60,17 @@ final class WebhookSignatureTest extends TestCase
         self::assertFalse((new WebhookSignature(''))->isValid($header, 'req-1', '123456'));
     }
 
+    public function testAceptaCualquieraDeVariasClaves(): void
+    {
+        // Firmado con la clave de la aplicación espejo de prueba.
+        $header = self::sign('123456', 'req-1', '1760000000000');
+        $validator = new WebhookSignature(['clave-de-produccion', self::SECRET]);
+
+        self::assertTrue($validator->isValid($header, 'req-1', '123456'));
+        self::assertFalse((new WebhookSignature(['clave-de-produccion', 'otra']))->isValid($header, 'req-1', '123456'));
+        self::assertFalse((new WebhookSignature(['', '  ']))->isValid($header, 'req-1', '123456'));
+    }
+
     public function testRechazaCabecerasMalFormadas(): void
     {
         $validator = new WebhookSignature(self::SECRET);

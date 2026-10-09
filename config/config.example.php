@@ -40,14 +40,19 @@ return [
         'test' => [
             'public_key' => '',
             'access_token' => '',
+            // Los pagos de prueba los procesa la aplicación ESPEJO del vendedor
+            // de prueba (TestApp-…), que firma sus avisos con SU clave: entra al
+            // panel con el vendedor de prueba → TestApp → Webhooks → Clave secreta.
+            'webhook_secret' => '',
         ],
         'production' => [
             'public_key' => '',
             'access_token' => '',
         ],
 
+        // Clave del webhook de la aplicación del CLIENTE (pagos reales):
         // Panel de Mercado Pago → Tus integraciones → Webhooks → «Clave secreta».
-        // Sin ella, el webhook rechaza todas las notificaciones.
+        // Sin ninguna clave, el webhook rechaza todas las notificaciones.
         'webhook_secret' => '',
         // Texto que aparece en el estado de cuenta de la tarjeta (máx. 22).
         'statement_descriptor' => 'HERO FILO ACADEMIA',

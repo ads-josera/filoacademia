@@ -53,6 +53,27 @@ final class Config
         return trim($value);
     }
 
+    /**
+     * Claves con las que se aceptan avisos del webhook, sin importar el modo:
+     * la de la aplicación del cliente (mercadopago.webhook_secret o
+     * production.webhook_secret) y la de la aplicación espejo de prueba
+     * (test.webhook_secret). Así no se pierden avisos tardíos al cambiar de modo.
+     *
+     * @return list<string>
+     */
+    public function mercadoPagoWebhookSecrets(): array
+    {
+        $secrets = [];
+        foreach (['mercadopago.webhook_secret', 'mercadopago.production.webhook_secret', 'mercadopago.test.webhook_secret'] as $key) {
+            $value = trim($this->string($key));
+            if ($value !== '' && !in_array($value, $secrets, true)) {
+                $secrets[] = $value;
+            }
+        }
+
+        return $secrets;
+    }
+
     /** @return 'test'|'production' Cualquier valor distinto de «production» es «test». */
     public function mercadoPagoMode(): string
     {

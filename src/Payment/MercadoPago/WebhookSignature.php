@@ -10,6 +10,10 @@ namespace FiloAcademia\Payment\MercadoPago;
  * Plantilla oficial: "id:[data.id_url];request-id:[x-request-id_header];ts:[ts_header];"
  * firmada con HMAC-SHA256 y la clave secreta del webhook.
  *
+ * Se aceptan varias claves: los pagos de PRUEBA los procesa una aplicación
+ * espejo del vendedor de prueba (TestApp-…), que firma con su propia clave,
+ * distinta a la de la aplicación del cliente. Todas las claves son nuestras.
+ *
  * Aun con firma válida, el webhook NO se cree: solo indica qué pago consultar
  * en la API. Esta verificación evita que cualquiera nos haga consultar en bucle.
  *
@@ -17,13 +21,19 @@ namespace FiloAcademia\Payment\MercadoPago;
  */
 final class WebhookSignature
 {
-    public function __construct(private readonly string $secret)
+    /** @var list<string> */
+    private readonly array $secrets;
+
+    /** @param string|list<string> $secrets */
+    public function __construct(string|array $secrets)
     {
+        $list = array_map('trim', is_array($secrets) ? $secrets : [$secrets]);
+        $this->secrets = array_values(array_unique(array_filter($list, static fn (string $s): bool => $s !== '')));
     }
 
     public function isValid(string $signatureHeader, string $requestId, string $dataId): bool
     {
-        if ($this->secret === '' || $signatureHeader === '' || $dataId === '') {
+        if ($this->secrets === [] || $signatureHeader === '' || $dataId === '') {
             return false;
         }
 
@@ -50,6 +60,12 @@ final class WebhookSignature
         }
         $manifest .= 'ts:' . $ts . ';';
 
-        return hash_equals(hash_hmac('sha256', $manifest, $this->secret), $v1);
+        foreach ($this->secrets as $secret) {
+            if (hash_equals(hash_hmac('sha256', $manifest, $secret), $v1)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

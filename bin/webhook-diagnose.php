@@ -49,6 +49,10 @@ echo "data.id en URL: $idUrl · en cuerpo: $idBody · type cuerpo: " . ($body['t
 echo "clave: " . strlen($secretRaw) . " caracteres" . ($secretRaw !== trim($secretRaw) ? ' (¡con espacios alrededor!)' : '') . "\n\n";
 
 $secrets = ['clave de config.php' => $secretRaw, 'clave de config.php sin espacios' => trim($secretRaw)];
+$testSecret = trim((string) ($config['mercadopago']['test']['webhook_secret'] ?? ''));
+if ($testSecret !== '') {
+    $secrets['clave de prueba (test.webhook_secret)'] = $testSecret;
+}
 $try = (string) getenv('WEBHOOK_SECRET_TRY');
 if ($try !== '') {
     $secrets['clave probada (WEBHOOK_SECRET_TRY)'] = trim($try);

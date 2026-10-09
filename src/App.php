@@ -100,7 +100,7 @@ final class App
 
     public function webhookSignature(): WebhookSignature
     {
-        return new WebhookSignature(trim($this->config->string('mercadopago.webhook_secret')));
+        return new WebhookSignature($this->config->mercadoPagoWebhookSecrets());
     }
 
     public function mailer(): Mailer
