@@ -6,6 +6,9 @@
  * con la clave de config.php, y dice cuál coincide. No imprime la clave.
  *
  *   php bin/webhook-diagnose.php
+ *
+ * Para probar OTRA clave sin guardarla (no queda en el historial):
+ *   read -rsp 'Clave a probar: ' WEBHOOK_SECRET_TRY && export WEBHOOK_SECRET_TRY && php bin/webhook-diagnose.php
  */
 
 declare(strict_types=1);
@@ -45,7 +48,12 @@ echo "x-request-id: $rid\n";
 echo "data.id en URL: $idUrl · en cuerpo: $idBody · type cuerpo: " . ($body['type'] ?? '-') . " · live_mode: " . var_export($body['live_mode'] ?? null, true) . "\n";
 echo "clave: " . strlen($secretRaw) . " caracteres" . ($secretRaw !== trim($secretRaw) ? ' (¡con espacios alrededor!)' : '') . "\n\n";
 
-$secrets = ['clave tal cual' => $secretRaw, 'clave sin espacios' => trim($secretRaw)];
+$secrets = ['clave de config.php' => $secretRaw, 'clave de config.php sin espacios' => trim($secretRaw)];
+$try = (string) getenv('WEBHOOK_SECRET_TRY');
+if ($try !== '') {
+    $secrets['clave probada (WEBHOOK_SECRET_TRY)'] = trim($try);
+    echo "También se prueba una clave adicional de " . strlen(trim($try)) . " caracteres (no se guarda).\n\n";
+}
 $ids = array_unique(array_filter([$idUrl, strtolower($idUrl), $idBody]));
 $manifests = [];
 foreach ($ids as $id) {
@@ -65,6 +73,6 @@ foreach ($secrets as $secretName => $secret) {
     }
 }
 if (!$found) {
-    echo "✘ Ninguna variante coincide con la clave de config.php.\n";
-    echo "  → La clave con la que Mercado Pago firma estos avisos NO es la de config.php.\n";
+    echo "✘ Ninguna variante coincide con ninguna de las claves probadas.\n";
+    echo "  → Mercado Pago firma estos avisos con una clave distinta.\n";
 }
