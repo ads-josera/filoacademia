@@ -95,6 +95,7 @@ final class App
             $this->urls(),
             mb_substr($this->config->string('mercadopago.statement_descriptor'), 0, 22),
             $this->maxInstallments(),
+            $this->excludedPaymentTypes(),
         ));
     }
 
@@ -178,6 +179,20 @@ final class App
     private function maxInstallments(): int
     {
         return max(1, (int) $this->config->get('mercadopago.max_installments', 1));
+    }
+
+    /**
+     * Sin la clave en config.php se excluyen los pagos diferidos (efectivo,
+     * SPEI, cajero): se acreditan horas después y ese camino aún no se ha
+     * probado con dinero real. Para ofrecerlos: 'excluded_payment_types' => [].
+     *
+     * @return list<string>
+     */
+    private function excludedPaymentTypes(): array
+    {
+        $types = $this->config->get('mercadopago.excluded_payment_types', ['ticket', 'bank_transfer', 'atm']);
+
+        return array_values(array_filter(array_map('trim', (array) $types), static fn (string $t): bool => $t !== ''));
     }
 
     /**

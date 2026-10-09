@@ -25,12 +25,17 @@ final class MercadoPagoGateway implements PaymentGateway
 {
     private const API = 'https://api.mercadopago.com';
 
+    /**
+     * @param list<string> $excludedPaymentTypes Tipos de pago que el checkout no
+     *        ofrece (ticket = efectivo/OXXO, bank_transfer = SPEI, atm).
+     */
     public function __construct(
         private readonly HttpTransport $transport,
         private readonly string $accessToken,
         private readonly Urls $urls,
         private readonly string $statementDescriptor,
         private readonly int $maxInstallments,
+        private readonly array $excludedPaymentTypes = [],
     ) {
     }
 
@@ -57,6 +62,13 @@ final class MercadoPagoGateway implements PaymentGateway
             ],
             'metadata' => ['order_id' => $order->id],
         ];
+
+        if ($this->excludedPaymentTypes !== []) {
+            $payload['payment_methods']['excluded_payment_types'] = array_map(
+                static fn (string $type): array => ['id' => $type],
+                $this->excludedPaymentTypes,
+            );
+        }
 
         // Mercado Pago rechaza auto_return con direcciones que no son públicas
         // (localhost). En local se omite; el pago se sincroniza igual al volver

@@ -32,7 +32,16 @@
 3. **Cobro** (`/pagar/pedido?folio=…&t=…`): crea (una sola vez) la preferencia
    de Mercado Pago con los conceptos del pedido.
    - **Modo `pro`**: botón «Pagar $X MXN» que lleva a la ventana segura de
-     Mercado Pago (tarjeta, OXXO, saldo MP).
+     Mercado Pago (tarjeta y saldo MP).
+
+     **Efectivo/OXXO, SPEI y cajero están desactivados** (desde el 2026-10-09,
+     decisión de Josera): se acreditan horas después y ese camino no se ha
+     probado con dinero real. Lo controla `mercadopago.excluded_payment_types`
+     (sin la clave se excluyen `ticket`, `bank_transfer` y `atm`). Para
+     activarlos: probar primero una ficha OXXO de punta a punta y luego poner
+     `'excluded_payment_types' => []` en `config.php` (no requiere desplegar).
+     Ojo: el modo `bricks` todavía ofrece efectivo (`ticket` en
+     `assets/js/bricks.js`); igualarlo al probar Bricks.
    - **Modo `bricks`**: el formulario de Mercado Pago aparece en la página. Al
      enviarlo, `assets/js/bricks.js` llama a `/api/pago`, que cobra con el
      **monto del pedido guardado** (el del navegador se descarta) y una llave de

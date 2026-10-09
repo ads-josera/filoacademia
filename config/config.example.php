@@ -57,6 +57,11 @@ return [
         // Texto que aparece en el estado de cuenta de la tarjeta (máx. 22).
         'statement_descriptor' => 'HERO FILO ACADEMIA',
         'max_installments' => 1,
+        // Tipos de pago que NO se ofrecen en Checkout Pro: ticket (efectivo/OXXO),
+        // bank_transfer (SPEI), atm (cajero). Se acreditan horas después; quitar
+        // de la lista cuando se haya probado ese camino. [] = ofrecer todos.
+        // Sin esta clave, el sitio excluye los tres.
+        'excluded_payment_types' => ['ticket', 'bank_transfer', 'atm'],
     ],
 
     'mail' => [

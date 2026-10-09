@@ -31,9 +31,32 @@ final class MercadoPagoGatewayTest extends TestCase
         );
     }
 
-    private function gateway(RecordingTransport $transport, string $url = 'https://filoacademia.mx'): MercadoPagoGateway
+    /** @param list<string> $excluded */
+    private function gateway(RecordingTransport $transport, string $url = 'https://filoacademia.mx', array $excluded = []): MercadoPagoGateway
     {
-        return new MercadoPagoGateway($transport, 'TEST-token', new Urls($url), 'HERO FILO ACADEMIA', 1);
+        return new MercadoPagoGateway($transport, 'TEST-token', new Urls($url), 'HERO FILO ACADEMIA', 1, $excluded);
+    }
+
+    public function testExcluyeLosTiposDePagoConfigurados(): void
+    {
+        $transport = new RecordingTransport(['status' => 201, 'body' => '{"id":"pref-1","init_point":"https://mp/p"}']);
+        $this->gateway($transport, excluded: ['ticket', 'bank_transfer', 'atm'])->createCheckout($this->order());
+
+        $payload = json_decode($transport->requests[0]['body'], true);
+        self::assertSame(
+            [['id' => 'ticket'], ['id' => 'bank_transfer'], ['id' => 'atm']],
+            $payload['payment_methods']['excluded_payment_types'],
+        );
+        self::assertSame(1, $payload['payment_methods']['installments']);
+    }
+
+    public function testSinExclusionesNoSeEnviaLaLista(): void
+    {
+        $transport = new RecordingTransport(['status' => 201, 'body' => '{"id":"pref-1","init_point":"https://mp/p"}']);
+        $this->gateway($transport)->createCheckout($this->order());
+
+        $payload = json_decode($transport->requests[0]['body'], true);
+        self::assertArrayNotHasKey('excluded_payment_types', $payload['payment_methods']);
     }
 
     public function testLosConceptosDeLaPreferenciaSumanElTotalDelPedido(): void
