@@ -42,8 +42,31 @@ final class WebhookController
         $valid = $this->app->webhookSignature()->isValid($signature, $requestId, $dataId);
 
         if (!$valid) {
-            $orders->logWebhook($requestId, $type, $dataId, false, 'firma inválida');
-            $this->app->logger()->warning('Webhook con firma inválida.', ['type' => $type, 'data_id' => $dataId]);
+            // Diagnóstico sin secretos: qué trae el aviso, para distinguir un
+            // aviso falso de uno real en otro formato (p. ej. IPN sin firma).
+            $parts = [];
+            foreach (explode(',', $signature) as $pair) {
+                [$k, $v] = array_pad(explode('=', trim($pair), 2), 2, '');
+                $parts[trim($k)] = trim($v);
+            }
+            $detail = sprintf(
+                'firma inválida · query=%s · x-signature=%s · x-request-id=%s · ts=%s',
+                http_build_query(array_intersect_key($_GET, array_flip(['type', 'topic', 'data_id', 'id', 'data.id']))),
+                $signature === '' ? 'ausente' : 'presente',
+                $requestId === '' ? 'ausente' : 'presente',
+                $parts['ts'] ?? '-',
+            );
+            $orders->logWebhook($requestId, $type, $dataId, false, $detail);
+            $this->app->logger()->warning('Webhook con firma inválida.', [
+                'type' => $type,
+                'data_id' => $dataId,
+                'query' => $_GET,
+                'body_type' => $body['type'] ?? null,
+                'body_data_id' => $body['data']['id'] ?? null,
+                'tiene_x_signature' => $signature !== '',
+                'tiene_x_request_id' => $requestId !== '',
+                'user_agent' => (string) ($_SERVER['HTTP_USER_AGENT'] ?? ''),
+            ]);
             Response::text('Firma inválida.', 401);
         }
 
