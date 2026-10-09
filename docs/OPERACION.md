@@ -1,5 +1,8 @@
 # Operación y soporte
 
+> Para cambiar textos, fotos o precios paso a paso, ver
+> [EDITAR-CONTENIDO.md](EDITAR-CONTENIDO.md).
+
 ## Cambiar precios
 
 Edita `config/catalog.php` (montos en pesos enteros). Lo toman a la vez la lista

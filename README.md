@@ -59,6 +59,7 @@ SCREENS_FILE=pantallas.json SHOT_DIR=/tmp/capturas node <skill>/browser.mjs http
 | [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md) | Estructura de carpetas, capas, decisiones y diseño |
 | [docs/FLUJO-DE-PAGO.md](docs/FLUJO-DE-PAGO.md) | Cómo funciona el cobro de punta a punta, estados y seguridad |
 | [docs/DESPLIEGUE.md](docs/DESPLIEGUE.md) | Manual de instalación en cPanel, con los comandos agrupados |
+| [docs/EDITAR-CONTENIDO.md](docs/EDITAR-CONTENIDO.md) | Dónde cambiar cada texto, foto y precio, y cómo publicarlo |
 | [docs/OPERACION.md](docs/OPERACION.md) | Día a día: cambiar precios, revisar pedidos, bitácoras, problemas comunes |
 
 ## Autoría
